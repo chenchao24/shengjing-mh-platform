@@ -127,7 +127,9 @@ function renderGrid() {
   document.getElementById('doc-grid').innerHTML = list.map((d, i) => `
     <div class="adc${d.status!=='接诊中'?' inactive':''}">
       <div class="adc-head">
-        <div class="adc-av c${(i % 5) + 1}">${d.initial}</div>
+        <div class="adc-av c${(i % 5) + 1}${d.photo ? ' has-photo' : ''}">
+          ${d.photo ? `<img src="${d.photo}" alt="${d.name}" loading="lazy" onerror="this.parentNode.classList.remove('has-photo');this.style.display='none'"/>` : d.initial}
+        </div>
         <div class="g1 minw0">
           <div class="adc-name">${d.name}</div>
           <div class="adc-title">${d.title} · ${d.dept}</div>
