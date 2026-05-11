@@ -1,0 +1,668 @@
+:root {
+  --bg: #f4f8f7;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-strong: #ffffff;
+  --text: #183235;
+  --muted: #607779;
+  --line: rgba(24, 50, 53, 0.1);
+  --primary: #1a7fa0;
+  --primary-deep: #0f5f79;
+  --secondary: #4bbfad;
+  --danger: #c14d4d;
+  --warning: #f6e2de;
+  --shadow: 0 24px 64px rgba(15, 47, 54, 0.12);
+  --radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Outfit", "PingFang SC", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(75, 191, 173, 0.32), transparent 30%),
+    radial-gradient(circle at top right, rgba(26, 127, 160, 0.18), transparent 24%),
+    linear-gradient(180deg, #edf5f2 0%, #f7faf9 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app-shell,
+.admin-shell {
+  min-height: 100vh;
+}
+
+.patient-shell {
+  padding: 24px 20px 140px;
+}
+
+.hero-banner,
+.section-card,
+.drawer-panel,
+.metric-card,
+.doctor-admin-card,
+.schedule-item {
+  backdrop-filter: blur(18px);
+}
+
+.hero-banner {
+  max-width: 1160px;
+  margin: 0 auto 24px;
+  padding: 28px;
+  border-radius: 36px;
+  background: linear-gradient(145deg, rgba(17, 85, 108, 0.96), rgba(73, 164, 154, 0.88));
+  color: #f7fffd;
+  box-shadow: var(--shadow);
+}
+
+.topbar,
+.hero-copy,
+.section-heading,
+.meta-row,
+.toolbar,
+.booking-summary,
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hero-copy {
+  margin-top: 28px;
+  align-items: stretch;
+}
+
+.hero-copy > * {
+  flex: 1;
+}
+
+.hero-kicker,
+.eyebrow,
+.section-tag {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.hero-banner h1,
+.admin-sidebar h1 {
+  font-family: "Noto Serif SC", serif;
+  font-size: clamp(30px, 4vw, 48px);
+  margin-top: 10px;
+}
+
+.hero-text {
+  margin-top: 18px;
+  max-width: 540px;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.hero-card,
+.notice-card,
+.detail-cover,
+.article-visual,
+.doctor-avatar {
+  border-radius: 28px;
+}
+
+.hero-card {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hero-badge,
+.pill,
+.tag,
+.status-badge,
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero-badge,
+.pill,
+.step.active,
+.status-badge.pending {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.compact-list {
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  line-height: 1.7;
+}
+
+.patient-main,
+.admin-main {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.section-card,
+.metric-card,
+.doctor-admin-card,
+.schedule-item {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.section-card {
+  padding: 24px;
+}
+
+.statement-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(226, 243, 240, 0.92));
+}
+
+.toolbar-stack {
+  flex-direction: column;
+  align-items: stretch;
+  margin: 24px 0;
+}
+
+.search-field {
+  display: grid;
+  gap: 10px;
+}
+
+.search-field input,
+.booking-form input,
+.booking-form textarea,
+.booking-form select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.chip-row,
+.tag-list,
+.doctor-admin-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip,
+.text-button,
+.ghost-link,
+.secondary-button,
+.primary-button,
+.drawer-close {
+  border: none;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+}
+
+.chip {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+}
+
+.chip.active,
+.primary-button,
+.ghost-link {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.ghost-link,
+.secondary-button,
+.primary-button,
+.drawer-close {
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.secondary-button,
+.drawer-close {
+  background: rgba(24, 50, 53, 0.06);
+  color: var(--text);
+}
+
+.text-button {
+  background: transparent;
+  color: var(--primary-deep);
+  padding: 0;
+}
+
+.ghost-link.inverse {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.article-grid,
+.doctor-grid,
+.notice-grid,
+.metric-grid,
+.admin-grid,
+.charts-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.article-grid,
+.doctor-grid,
+.notice-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.article-card,
+.doctor-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  background: var(--surface-strong);
+  border-radius: 24px;
+  border: 1px solid var(--line);
+}
+
+.article-visual,
+.detail-cover {
+  min-height: 160px;
+  padding: 18px;
+  display: grid;
+  place-items: end start;
+  color: white;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(26, 127, 160, 0.92), rgba(75, 191, 173, 0.8));
+}
+
+.article-copy,
+.detail-article,
+.booking-stepper,
+.booking-form,
+.schedule-list,
+.ranking-list,
+.donut-list {
+  display: grid;
+  gap: 16px;
+}
+
+.doctor-card {
+  grid-template-columns: auto 1fr;
+}
+
+.doctor-card.muted,
+.doctor-admin-card.muted {
+  opacity: 0.66;
+}
+
+.doctor-avatar {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-deep), var(--secondary));
+  font-size: 24px;
+}
+
+.doctor-hospital,
+.article-copy p,
+.detail-article p,
+.notice-card p,
+.doctor-admin-card p,
+.schedule-item span,
+.metric-card span,
+th,
+td {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.pill {
+  background: rgba(26, 127, 160, 0.12);
+  color: var(--primary-deep);
+}
+
+.pill.neutral,
+.status-badge.muted,
+.status-badge.warning {
+  background: rgba(24, 50, 53, 0.08);
+  color: var(--text);
+}
+
+.tag {
+  background: rgba(75, 191, 173, 0.12);
+  color: var(--primary-deep);
+}
+
+.accent-card {
+  background: linear-gradient(135deg, rgba(26, 127, 160, 0.08), rgba(75, 191, 173, 0.18));
+}
+
+.detail-drawer {
+  position: fixed;
+  inset: 0;
+  display: none;
+}
+
+.detail-drawer[aria-hidden="false"] {
+  display: block;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 27, 32, 0.48);
+}
+
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(560px, 100%);
+  height: 100%;
+  padding: 24px;
+  background: rgba(247, 251, 250, 0.98);
+  overflow: auto;
+}
+
+.detail-meta,
+.warning-box,
+.booking-summary,
+.success-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--line);
+}
+
+.warning-box {
+  background: linear-gradient(135deg, rgba(193, 77, 77, 0.08), rgba(255, 239, 230, 0.92));
+}
+
+.step-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.booking-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.success-card.hidden {
+  display: none;
+}
+
+.emergency-bar {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: linear-gradient(135deg, rgba(177, 65, 65, 0.96), rgba(235, 122, 78, 0.94));
+  color: white;
+  border-radius: 24px;
+  box-shadow: 0 24px 48px rgba(129, 51, 41, 0.28);
+}
+
+.emergency-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.emergency-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.emergency-actions a {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+}
+
+.admin-sidebar {
+  min-height: 100vh;
+  padding: 28px;
+  color: white;
+  background: linear-gradient(180deg, #14243e, #1a3b59);
+  display: grid;
+  align-content: start;
+  gap: 28px;
+  position: sticky;
+  top: 0;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-nav a {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.admin-main {
+  padding: 28px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.metric-card {
+  padding: 20px;
+}
+
+.metric-card.warning {
+  background: linear-gradient(135deg, rgba(255, 246, 243, 0.96), rgba(246, 226, 222, 0.96));
+}
+
+.metric-card h3 {
+  font-size: 34px;
+  margin: 10px 0 6px;
+}
+
+.admin-grid {
+  grid-template-columns: 2fr 1fr;
+}
+
+.wide-card {
+  min-width: 0;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  min-height: 260px;
+  padding-top: 16px;
+}
+
+.bar-item {
+  flex: 1;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.bar {
+  width: 100%;
+  border-radius: 18px 18px 6px 6px;
+  background: linear-gradient(180deg, var(--secondary), var(--primary));
+}
+
+.donut-row,
+.rank-item,
+.schedule-item,
+.doctor-admin-card {
+  padding: 16px 18px;
+}
+
+.progress-track {
+  margin-top: 10px;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(24, 50, 53, 0.08);
+  overflow: hidden;
+}
+
+.progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+.rank-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  align-items: center;
+  border-radius: 18px;
+  background: rgba(24, 50, 53, 0.04);
+}
+
+.rank-index {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(26, 127, 160, 0.12);
+  color: var(--primary-deep);
+  font-weight: 700;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-badge.success {
+  background: rgba(75, 191, 173, 0.18);
+  color: #156757;
+}
+
+.status-badge.pending {
+  color: #0b5c72;
+}
+
+@media (max-width: 900px) {
+  .admin-shell,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: relative;
+    min-height: auto;
+  }
+
+  .hero-copy,
+  .topbar,
+  .section-heading,
+  .emergency-bar,
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .patient-shell,
+  .admin-main {
+    padding: 16px 16px 140px;
+  }
+
+  .hero-banner,
+  .section-card,
+  .drawer-panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .doctor-card {
+    grid-template-columns: 1fr;
+  }
+
+  .emergency-bar {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+}
