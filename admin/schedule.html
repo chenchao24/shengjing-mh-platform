@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>排班号源 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+<style>
+.time-slot{display:inline-flex;align-items:center;padding:8px 14px;
+  border-radius:var(--rfull);border:1.5px solid var(--bdr-s);
+  font-size:13px;font-weight:500;cursor:pointer;transition:var(--tb);background:var(--surf)}
+.time-slot:hover{border-color:var(--cp);color:var(--cp)}
+.time-slot.booked{background:rgba(26,127,160,.08);border-color:var(--cp);color:var(--cp)}
+.time-slot.full{opacity:.4;background:var(--surf-alt);pointer-events:none}
+.slot-times{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+  <main class="adm-main">
+
+    <div class="page-hd">
+      <div>
+        <div class="page-bc"><a href="./doctors.html">医生资源库</a><span>/</span><span>排班号源</span></div>
+        <h1 class="page-title">排班与号源管理</h1>
+        <p class="page-sub">按医生配置出诊时间与号源数量，支持批量排班。</p>
+      </div>
+      <div class="page-acts">
+        <button class="btn btn-o" onclick="Utils.openModal('batch-modal')">批量排班</button>
+        <button class="btn btn-p" onclick="Utils.toast('号源已保存 ✓')">保存排班</button>
+      </div>
+    </div>
+
+    <!-- Doctor Selector + Month Nav -->
+    <div class="card card-p" style="margin-bottom:20px">
+      <div class="f aic gap4 wrap">
+        <div class="form-group" style="flex:1;min-width:200px">
+          <label class="form-label">当前医生</label>
+          <select class="sel" id="doc-sel"></select>
+        </div>
+        <div class="f aic gap3">
+          <button class="btn btn-icon btn-o" onclick="changeMonth(-1)">‹</button>
+          <span class="w6 lg" id="month-label">2026年5月</span>
+          <button class="btn btn-icon btn-o" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="f gap3">
+          <button class="btn btn-s btn-sm" onclick="viewMode='week';renderCal()">周视图</button>
+          <button class="btn btn-p btn-sm" onclick="viewMode='month';renderCal()">月视图</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="align-items:start">
+      <!-- Calendar -->
+      <div class="card card-p">
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <!-- Day Detail -->
+      <div class="card card-p" id="day-detail">
+        <div class="sec-eye mb3">请在日历中选择日期</div>
+        <p class="sm muted">点击已排班的日期查看详细号源配置，或在空白日期添加新排班。</p>
+        <div class="alert alert-info mt4">
+          <span class="alert-icon">💡</span>
+          <p class="sm">使用批量排班功能可快速为特定医生在一段时间内批量设置出诊时间。</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Batch Schedule Modal -->
+<div class="modal-ov" id="batch-modal" onclick="if(event.target===this)Utils.closeModal('batch-modal')">
+  <div class="modal">
+    <div class="modal-hd"><h2>批量排班设置</h2></div>
+    <div class="modal-bd" style="display:grid;gap:14px">
+      <div class="form-group">
+        <label class="form-label">日期范围</label>
+        <div class="f gap3">
+          <input class="input" type="date" id="batch-from" style="flex:1"/>
+          <span class="sm muted" style="align-self:center">至</span>
+          <input class="input" type="date" id="batch-to" style="flex:1"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">出诊星期</label>
+        <div class="f gap2 wrap mt2" id="weekdays">
+          <label class="toggle-wrap"><div class="toggle on"></div>周一</label>
+          <label class="toggle-wrap"><div class="toggle on"></div>周二</label>
+          <label class="toggle-wrap"><div class="toggle on"></div>周三</label>
+          <label class="toggle-wrap"><div class="toggle on"></div>周四</label>
+          <label class="toggle-wrap"><div class="toggle on"></div>周五</label>
+          <label class="toggle-wrap"><div class="toggle"></div>周六</label>
+          <label class="toggle-wrap"><div class="toggle"></div>周日</label>
+        </div>
+      </div>
+      <div class="two-col-eq" style="gap:12px">
+        <div class="form-group">
+          <label class="form-label">上午号源数</label>
+          <input class="input" type="number" id="am-slots" value="8" min="0" max="30"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">下午号源数</label>
+          <input class="input" type="number" id="pm-slots" value="6" min="0" max="30"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-o" onclick="Utils.closeModal('batch-modal')">取消</button>
+      <button class="btn btn-p" onclick="applyBatch()">应用排班</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('schedule');
+
+const docSel = document.getElementById('doc-sel');
+DATA.doctors.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.id; o.textContent = `${d.name} · ${d.title}`;
+  docSel.appendChild(o);
+});
+
+const initId = parseInt(Utils.getParam('doctorId')||'1');
+docSel.value = initId;
+
+let curYear = 2026, curMonth = 4; // 0-indexed: May = 4
+let viewMode = 'month';
+let selDay = null;
+
+// Mock schedule data per doctor
+const scheduleData = {};
+DATA.doctors.forEach(d => {
+  scheduleData[d.id] = {};
+  d.slots.forEach(s => {
+    const parts = s.split(' ');
+    const date = `2026-05-${parts[0].replace('月','').replace('日','').padStart(2,'0').slice(-2)}`;
+    const realDate = s.includes('14日') ? '2026-05-14' : s.includes('13日') ? '2026-05-13' : s.includes('15日') ? '2026-05-15' : s.includes('16日') ? '2026-05-16' : s.includes('17日') ? '2026-05-17' : s.includes('18日') ? '2026-05-18' : null;
+    if (realDate) {
+      if (!scheduleData[d.id][realDate]) scheduleData[d.id][realDate] = { am:8, pm:6, amUsed:3, pmUsed:2 };
+    }
+  });
+});
+
+function changeMonth(dir) {
+  curMonth += dir;
+  if (curMonth > 11) { curMonth=0; curYear++; }
+  if (curMonth < 0) { curMonth=11; curYear--; }
+  renderCal();
+}
+window.changeMonth = changeMonth;
+
+function renderCal() {
+  const docId = parseInt(docSel.value);
+  const sch = scheduleData[docId] || {};
+  const label = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  document.getElementById('month-label').textContent = `${curYear}年${label[curMonth]}`;
+
+  const firstDay = new Date(curYear, curMonth, 1).getDay();
+  const daysInMonth = new Date(curYear, curMonth+1, 0).getDate();
+  const today = new Date(); const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  const headers = ['日','一','二','三','四','五','六'];
+  let html = headers.map(h => `<div class="cal-hd">${h}</div>`).join('');
+
+  for (let i=0; i<firstDay; i++) html += '<div class="cal-day other-m"></div>';
+  for (let d=1; d<=daysInMonth; d++) {
+    const dateStr = `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasS = sch[dateStr];
+    const isSel = selDay === dateStr;
+    const isToday = dateStr === todayStr;
+    html += `<div class="cal-day${hasS?' has':''}${isSel?' sel':''}${isToday?' today':''}" onclick="selectDay('${dateStr}')">
+      <div class="cal-dn">${d}</div>
+      ${hasS ? `<div class="cal-di">上午 ${hasS.am}号<br>下午 ${hasS.pm}号</div>` : ''}
+    </div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function selectDay(dateStr) {
+  selDay = dateStr;
+  renderCal();
+  const docId = parseInt(docSel.value);
+  const sch = scheduleData[docId] || {};
+  const s = sch[dateStr];
+  const d = new Date(dateStr);
+  const days = ['日','一','二','三','四','五','六'];
+  document.getElementById('day-detail').innerHTML = `
+    <div class="sec-hd" style="margin-bottom:14px">
+      <div><div class="sec-eye">排班配置</div><h3 class="sec-title" style="font-size:16px">${dateStr.replace(/-/g,'/')} 周${days[d.getDay()]}</h3></div>
+    </div>
+    ${s ? `
+      <div style="display:grid;gap:12px">
+        <div class="notice" style="display:grid;gap:10px">
+          <div class="f aic jcb"><span class="w6 sm">上午号源</span><span class="badge badge-ok">${s.am}号</span></div>
+          <div class="f aic jcb"><span class="xs muted">已预约</span><span class="xs w6">${s.amUsed} / ${s.am}</span></div>
+          <div class="prog-track" style="height:6px;margin-top:-4px"><div class="prog-fill" style="width:${Math.round(s.amUsed/s.am*100)}%"></div></div>
+        </div>
+        <div class="notice accent" style="display:grid;gap:10px">
+          <div class="f aic jcb"><span class="w6 sm">下午号源</span><span class="badge badge-cp">${s.pm}号</span></div>
+          <div class="f aic jcb"><span class="xs muted">已预约</span><span class="xs w6">${s.pmUsed} / ${s.pm}</span></div>
+          <div class="prog-track" style="height:6px;margin-top:-4px"><div class="prog-fill" style="width:${Math.round(s.pmUsed/s.pm*100)}%"></div></div>
+        </div>
+        <div class="f gap2">
+          <button class="btn btn-s btn-sm g1" onclick="Utils.toast('排班已更新 ✓')">修改号源</button>
+          <button class="btn btn-d btn-sm" onclick="Utils.toast('当日排班已删除')">删除</button>
+        </div>
+      </div>
+    ` : `
+      <div class="empty" style="padding:24px 0">
+        <div class="empty-ico" style="font-size:32px">📅</div>
+        <div class="empty-ttl">暂无排班</div>
+        <div class="empty-desc">为该日期添加出诊安排</div>
+      </div>
+      <button class="btn btn-p btn-sm btn-w mt4" onclick="addSchedule('${dateStr}')">＋ 添加排班</button>
+    `}`;
+}
+window.selectDay = selectDay;
+
+function addSchedule(dateStr) {
+  const docId = parseInt(docSel.value);
+  if (!scheduleData[docId]) scheduleData[docId] = {};
+  scheduleData[docId][dateStr] = { am:8, pm:6, amUsed:0, pmUsed:0 };
+  renderCal();
+  selectDay(dateStr);
+  Utils.toast('排班已添加');
+}
+window.addSchedule = addSchedule;
+
+function applyBatch() {
+  Utils.closeModal('batch-modal');
+  Utils.toast('批量排班已应用 ✓');
+}
+window.applyBatch = applyBatch;
+
+docSel.onchange = () => { selDay=null; renderCal(); document.getElementById('day-detail').innerHTML = '<div class="sec-eye mb3">请在日历中选择日期</div><p class="sm muted">点击已排班的日期查看详细号源配置。</p>'; };
+renderCal();
+</script>
+</body>
+</html>
