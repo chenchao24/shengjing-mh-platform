@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>专科医生 · 盛京联盟精神心理服务系统</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body class="phone-mode">
+<div class="phone-demo-bar">
+  <span class="phone-demo-label">📱 患者演示</span>
+  <nav class="phone-demo-nav">
+    <a class="phone-demo-link" href="./articles.html">📰 科普</a>
+    <a class="phone-demo-link" href="./appointment.html">📅 预约</a>
+    <a class="phone-demo-link on" href="./doctors.html">👨‍⚕️ 医生</a>
+    <a class="phone-demo-link" href="../index.html">← 首页</a>
+  </nav>
+</div>
+<div class="phone-device">
+  <div class="phone-screen">
+<div class="pt-shell">
+  <header class="pt-appbar">
+    <button class="appbar-back" onclick="history.back()">←</button>
+    <span class="appbar-title">专科医生</span>
+  </header>
+
+  <div class="pt-content">
+    <div class="sec-hd">
+      <div>
+        <div class="sec-eye">医生资源展示区</div>
+        <h2 class="sec-title">选择合适的心理专科医生</h2>
+        <p class="sec-sub">专业医生实时展示，按需预约心理门诊。</p>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-wrap" style="flex:1;min-width:160px">
+        <span class="s-icon">🔍</span>
+        <input class="input" id="doc-search" type="search" placeholder="搜索医生姓名或擅长方向…"/>
+      </div>
+      <select class="sel" id="dept-filter" style="min-width:130px">
+        <option value="">全部科室</option>
+        <option value="心理科">心理科</option>
+        <option value="儿童心理科">儿童心理科</option>
+        <option value="精神科">精神科</option>
+      </select>
+    </div>
+
+    <div class="chip-row" id="spec-chips" style="margin-bottom:20px"></div>
+
+    <div id="doctor-list" style="display:grid;gap:14px"></div>
+
+    <div class="empty hidden" id="empty-state">
+      <div class="empty-ico">👨‍⚕️</div>
+      <div class="empty-ttl">未找到匹配的医生</div>
+      <p class="empty-desc">调整筛选条件后重试</p>
+    </div>
+  </div>
+
+  <div class="emg-bar">
+    <div>
+      <div class="emg-lbl">紧急援助</div>
+      <div class="emg-desc">心理危机请立即拨打援助热线</div>
+    </div>
+    <div class="emg-actions">
+      <a class="emg-link" href="tel:4001619995">危机热线 400-161-9995</a>
+    </div>
+  </div>
+
+  <nav class="bt-nav" id="bt-nav"></nav>
+</div>
+  </div><!-- /.phone-screen -->
+</div><!-- /.phone-device -->
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+(function(){
+  const { doctors } = DATA;
+  const specs = ['全部','抑郁焦虑','睡眠障碍','亲子关系','情绪管理'];
+  let kw = '', dept = '', spec = '全部';
+
+  // specialty chips
+  const chipRow = document.getElementById('spec-chips');
+  specs.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (s === spec ? ' on' : '');
+    btn.textContent = s;
+    btn.onclick = () => {
+      spec = s;
+      chipRow.querySelectorAll('.chip').forEach(b => b.classList.toggle('on', b.textContent === spec));
+      render();
+    };
+    chipRow.appendChild(btn);
+  });
+
+  document.getElementById('doc-search').oninput = function(){ kw = this.value.trim(); render(); };
+  document.getElementById('dept-filter').onchange = function(){ dept = this.value; render(); };
+
+  function render() {
+    const list = doctors.filter(d => {
+      const mk = !kw || (d.name+d.specialty.join('')+d.hospital).includes(kw);
+      const md = !dept || d.dept === dept;
+      const ms = spec === '全部' || d.specialty.some(s => s.includes(spec) || spec.includes(s));
+      return mk && md && ms;
+    });
+    const root = document.getElementById('doctor-list');
+    const empty = document.getElementById('empty-state');
+    if (!list.length) { root.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    root.innerHTML = list.map((d, i) => `
+      <div class="doc-card${d.status !== '接诊中' ? ' inactive' : ''}">
+        <div class="doc-av c${(i % 5) + 1}">${d.initial}</div>
+        <div class="doc-info">
+          <div class="f aic gap2 wrap">
+            <span class="doc-name">${d.name}</span>
+            <span class="badge badge-neu">${d.title}</span>
+            <span class="badge ${d.status==='接诊中'?'badge-ok':'badge-neu'}">${d.status}</span>
+          </div>
+          <div class="doc-meta">🏥 ${d.hospital}</div>
+          <div class="tag-row">${d.specialty.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <div class="xs muted">${d.bio}</div>
+          <div class="f aic jcb gap2 mt2">
+            <span class="doc-stat">已接诊 ${Utils.formatNum(d.visits)} 人次</span>
+            <button class="btn btn-p btn-sm" ${d.status!=='接诊中'?'disabled':''} onclick="location.href='./booking.html?doctorId=${d.id}'">${d.status==='接诊中'?'立即预约':'暂停接诊'}</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  Utils.initPatientNav('doctors');
+  render();
+})();
+</script>
+</body>
+</html>
