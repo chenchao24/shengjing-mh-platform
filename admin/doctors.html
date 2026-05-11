@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>医生资源库 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+  <main class="adm-main">
+
+    <div class="page-hd">
+      <div>
+        <div class="page-bc"><a href="./dashboard.html">运营总览</a><span>/</span><span>医生资源库</span></div>
+        <h1 class="page-title">医生资源库</h1>
+        <p class="page-sub">维护可预约医生信息，管理接诊状态与专科标签。</p>
+      </div>
+      <div class="page-acts">
+        <a class="btn btn-o" href="./schedule.html">📅 排班管理</a>
+        <button class="btn btn-p" onclick="openDoctorDrawer(null)">＋ 添加医生</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="met-grid" id="doc-stats" style="margin-bottom:24px"></div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="s-icon">🔍</span>
+        <input class="input" id="doc-kw" type="search" placeholder="搜索医生姓名或机构…"/>
+      </div>
+      <div class="filter-selects">
+        <select class="sel" id="dept-f">
+          <option value="">全部科室</option>
+          <option>心理科</option><option>儿童心理科</option><option>精神科</option>
+        </select>
+        <select class="sel" id="status-f">
+          <option value="">全部状态</option>
+          <option value="接诊中">接诊中</option>
+          <option value="暂停接诊">暂停接诊</option>
+        </select>
+      </div>
+      <span class="filter-count" id="doc-count"></span>
+    </div>
+
+    <div class="doc-grid" id="doc-grid"></div>
+
+  </main>
+</div>
+
+<!-- Drawer -->
+<div class="draw-overlay" id="draw-ov" onclick="Utils.closeDrawer('draw-ov','draw-panel')"></div>
+<div class="drawer" id="draw-panel">
+  <div class="draw-hd">
+    <span class="draw-title" id="draw-title">添加医生</span>
+    <button class="btn btn-icon btn-o" onclick="Utils.closeDrawer('draw-ov','draw-panel')">✕</button>
+  </div>
+  <div class="draw-body">
+    <form id="doc-form" style="display:grid;gap:16px">
+      <input type="hidden" id="f-id"/>
+      <div class="form-group"><label class="form-label">姓名 *</label><input class="input" id="f-name" required placeholder="医生真实姓名"/></div>
+      <div class="form-group"><label class="form-label">职称 *</label>
+        <select class="sel" id="f-title">
+          <option>主治医师</option><option>副主任医师</option><option>主任医师</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">所属机构 *</label><input class="input" id="f-hospital" placeholder="医院名称"/></div>
+      <div class="form-group"><label class="form-label">所属科室</label>
+        <select class="sel" id="f-dept">
+          <option>心理科</option><option>儿童心理科</option><option>精神科</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">擅长领域（逗号分隔）</label><input class="input" id="f-spec" placeholder="例：抑郁症,焦虑障碍"/></div>
+      <div class="form-group"><label class="form-label">个人简介</label><textarea class="area" id="f-bio" rows="3" placeholder="简要介绍医生擅长方向与从业经历…"></textarea></div>
+      <div class="f aic jcb">
+        <span class="sm w5">接诊状态</span>
+        <div class="toggle on" id="f-status" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </form>
+  </div>
+  <div class="draw-foot">
+    <button class="btn btn-o" onclick="Utils.closeDrawer('draw-ov','draw-panel')">取消</button>
+    <button class="btn btn-p" onclick="saveDoctor()">保存</button>
+  </div>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('doctors');
+
+let doctors = DATA.doctors.map(d => ({...d, specialty:[...d.specialty]}));
+
+function renderStats() {
+  const total = doctors.length;
+  const active = doctors.filter(d => d.status==='接诊中').length;
+  const visits = doctors.reduce((s,d) => s+d.visits, 0);
+  document.getElementById('doc-stats').innerHTML = [
+    {label:'医生总数', val:total+'人', ico:'👨‍⚕️'},
+    {label:'接诊中', val:active+'人', ico:'✅'},
+    {label:'暂停接诊', val:(total-active)+'人', ico:'⏸'},
+    {label:'累计接诊', val:Utils.formatNum(visits)+'次', ico:'📋'}
+  ].map(m => `<div class="met-card"><div class="met-lbl">${m.ico} ${m.label}</div><div class="met-val" style="font-size:26px">${m.val}</div></div>`).join('');
+}
+
+function renderGrid() {
+  const kw = document.getElementById('doc-kw').value.trim();
+  const dept = document.getElementById('dept-f').value;
+  const status = document.getElementById('status-f').value;
+  const list = doctors.filter(d => {
+    const mk = !kw || (d.name+d.hospital).includes(kw);
+    const md = !dept || d.dept === dept;
+    const ms = !status || d.status === status;
+    return mk && md && ms;
+  });
+  const docCount = document.getElementById('doc-count');
+  if (docCount) docCount.textContent = (kw||dept||status) ? `找到 ${list.length} / ${doctors.length} 位` : `共 ${doctors.length} 位医生`;
+  if (!list.length) {
+    document.getElementById('doc-grid').innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-ico">👨‍⚕️</div><div class="empty-ttl">未找到匹配医生</div></div>';
+    return;
+  }
+  document.getElementById('doc-grid').innerHTML = list.map((d, i) => `
+    <div class="adc${d.status!=='接诊中'?' inactive':''}">
+      <div class="adc-head">
+        <div class="adc-av c${(i % 5) + 1}">${d.initial}</div>
+        <div class="g1 minw0">
+          <div class="adc-name">${d.name}</div>
+          <div class="adc-title">${d.title} · ${d.dept}</div>
+        </div>
+        ${Utils.statusBadge(d.status)}
+      </div>
+      <div class="xs muted">🏥 ${d.hospital}</div>
+      <div class="tag-row">${d.specialty.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="xs muted lh-lg">${d.bio}</div>
+      <div class="xs muted">已接诊 ${Utils.formatNum(d.visits)} 人次</div>
+      <div class="f gap2 mt2">
+        <button class="btn btn-s btn-sm g1" onclick="openDoctorDrawer(${d.id})">✏ 编辑</button>
+        <a class="btn btn-o btn-sm g1" href="./schedule.html?doctorId=${d.id}">📅 排班</a>
+        <button class="btn btn-sm g1" style="${d.status==='接诊中'?'background:var(--warn-bg);color:var(--warn);':'background:var(--ok-bg);color:var(--ok);'}" onclick="toggleStatus(${d.id})">${d.status==='接诊中'?'⏸ 暂停':'▶ 恢复'}</button>
+      </div>
+    </div>`).join('');
+}
+
+function openDoctorDrawer(id) {
+  const d = id ? doctors.find(x=>x.id===id) : null;
+  document.getElementById('draw-title').textContent = d ? '编辑医生信息' : '添加医生';
+  document.getElementById('f-id').value = id||'';
+  document.getElementById('f-name').value = d?.name||'';
+  document.getElementById('f-title').value = d?.title||'主治医师';
+  document.getElementById('f-hospital').value = d?.hospital||'';
+  document.getElementById('f-dept').value = d?.dept||'心理科';
+  document.getElementById('f-spec').value = d?.specialty.join(',')||'';
+  document.getElementById('f-bio').value = d?.bio||'';
+  const tog = document.getElementById('f-status');
+  tog.classList.toggle('on', !d || d.status==='接诊中');
+  Utils.openDrawer('draw-ov','draw-panel');
+}
+window.openDoctorDrawer = openDoctorDrawer;
+
+function saveDoctor() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { Utils.toast('请填写医生姓名'); return; }
+  const id = parseInt(document.getElementById('f-id').value||'0');
+  const status = document.getElementById('f-status').classList.contains('on') ? '接诊中' : '暂停接诊';
+  const spec = document.getElementById('f-spec').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if (id) {
+    const d = doctors.find(x=>x.id===id);
+    Object.assign(d, { name, title:document.getElementById('f-title').value, hospital:document.getElementById('f-hospital').value, dept:document.getElementById('f-dept').value, specialty:spec, bio:document.getElementById('f-bio').value.trim(), status, initial:name[0] });
+  } else {
+    doctors.push({ id:Date.now(), name, title:document.getElementById('f-title').value, hospital:document.getElementById('f-hospital').value, dept:document.getElementById('f-dept').value, specialty:spec, bio:document.getElementById('f-bio').value.trim(), status, initial:name[0], visits:0, slots:[] });
+  }
+  Utils.closeDrawer('draw-ov','draw-panel');
+  renderStats(); renderGrid();
+  Utils.toast(id ? '医生信息已更新' : '医生已添加');
+}
+window.saveDoctor = saveDoctor;
+
+function toggleStatus(id) {
+  const d = doctors.find(x=>x.id===id);
+  d.status = d.status==='接诊中' ? '暂停接诊' : '接诊中';
+  renderStats(); renderGrid();
+  Utils.toast(`${d.name} 已${d.status}`);
+}
+window.toggleStatus = toggleStatus;
+
+document.getElementById('doc-kw').oninput = renderGrid;
+document.getElementById('dept-f').onchange = renderGrid;
+document.getElementById('status-f').onchange = renderGrid;
+
+renderStats(); renderGrid();
+</script>
+</body>
+</html>
