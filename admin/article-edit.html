@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>文章编辑 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+  <main class="adm-main">
+
+    <div class="page-hd">
+      <div>
+        <div class="page-bc"><a href="./articles.html">文章管理</a><span>/</span><span id="bc-label">新建文章</span></div>
+        <h1 class="page-title" id="page-title-h">新建科普文章</h1>
+      </div>
+      <div class="page-acts">
+        <span class="xs muted" id="auto-save-hint">草稿自动保存</span>
+        <button class="btn btn-o" id="btn-preview">👁 预览</button>
+        <button class="btn btn-o" id="btn-draft">保存草稿</button>
+        <button class="btn btn-p" id="btn-publish">发布文章</button>
+      </div>
+    </div>
+
+    <div class="editor-shell">
+      <!-- Editor Area -->
+      <div>
+        <div class="editor-area">
+          <div class="editor-toolbar">
+            <div title="加粗" class="tb-btn" onclick="fmt('bold')"><b>B</b></div>
+            <div title="斜体" class="tb-btn" onclick="fmt('italic')"><i>I</i></div>
+            <div title="下划线" class="tb-btn" onclick="fmt('underline')"><u>U</u></div>
+            <div class="divider-v" style="height:20px;margin:5px 4px"></div>
+            <div title="标题1" class="tb-btn" onclick="fmt('h1')">H1</div>
+            <div title="标题2" class="tb-btn" onclick="fmt('h2')">H2</div>
+            <div class="divider-v" style="height:20px;margin:5px 4px"></div>
+            <div title="无序列表" class="tb-btn" onclick="fmt('ul')">≡</div>
+            <div title="有序列表" class="tb-btn" onclick="fmt('ol')">①</div>
+            <div title="引用" class="tb-btn" onclick="fmt('quote')">"</div>
+            <div class="divider-v" style="height:20px;margin:5px 4px"></div>
+            <div title="插入链接" class="tb-btn" onclick="fmt('link')">🔗</div>
+            <div title="插入图片" class="tb-btn" onclick="fmt('img')">🖼</div>
+          </div>
+          <input class="editor-title" id="art-title" placeholder="请输入文章标题…" autocomplete="off"/>
+          <textarea class="editor-body" id="art-body" placeholder="在此输入正文内容…&#10;&#10;支持 Markdown 语法：**加粗**、*斜体*、## 标题、> 引用&#10;&#10;示例：&#10;## 什么是抑郁症？&#10;&#10;抑郁症并不是简单的心情不好，而是一组持续影响日常生活的症状群…"></textarea>
+        </div>
+        <div class="alert alert-info mt4">
+          <span class="alert-icon">ℹ️</span>
+          <p class="sm">本编辑器为演示版，展示富文本编辑界面原型。实际产品可集成 TipTap、Quill 或 WangEditor 等成熟编辑器。</p>
+        </div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="editor-panel">
+        <div class="card card-p">
+          <div class="sec-eye mb4">文章封面</div>
+          <div class="upload-zone" id="upload-zone" onclick="Utils.toast('图片上传（演示）')">
+            <div id="cover-preview" style="text-align:center">
+              <div style="font-size:32px;margin-bottom:8px;opacity:.4">🖼</div>
+              <div class="xs muted">点击上传封面图</div>
+              <div class="xs muted">建议 16:7，PNG/JPG</div>
+            </div>
+          </div>
+        </div>
+        <div class="card card-p">
+          <div class="sec-eye mb4">文章设置</div>
+          <div style="display:grid;gap:14px">
+            <div class="form-group">
+              <label class="form-label">所属分类</label>
+              <select class="sel" id="art-cat">
+                <option value="">请选择分类</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">文章标签</label>
+              <div class="tag-row" id="tag-selector" style="gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">作者信息</label>
+              <input class="input" id="art-author" placeholder="姓名 · 机构"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">发布时间</label>
+              <input class="input" id="art-date" type="date"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">文章摘要</label>
+              <textarea class="area" id="art-summary" rows="3" placeholder="用于列表页卡片展示，建议50字以内…"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card card-p">
+          <div class="sec-eye mb4">发布设置</div>
+          <div class="f aic jcb">
+            <span class="sm w5">允许分享</span>
+            <div class="toggle on" id="toggle-share" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="divider" style="margin:12px 0"></div>
+          <div class="f aic jcb">
+            <span class="sm w5">顶部推荐</span>
+            <div class="toggle" id="toggle-top" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('articles');
+
+const id = parseInt(Utils.getParam('id') || '0');
+const art = id ? DATA.articles.find(a => a.id === id) : null;
+
+// Update page title
+if (art) {
+  document.getElementById('bc-label').textContent = '编辑文章';
+  document.getElementById('page-title-h').textContent = '编辑科普文章';
+}
+
+// Populate category options
+const catSel = document.getElementById('art-cat');
+DATA.categories.slice(1).forEach(c => {
+  const o = document.createElement('option');
+  o.value = c; o.textContent = c;
+  catSel.appendChild(o);
+});
+
+// Populate tag selector
+const tagSel = document.getElementById('tag-selector');
+const selTags = new Set();
+DATA.tags.forEach(t => {
+  const btn = document.createElement('span');
+  btn.className = 'tag';
+  btn.textContent = t;
+  btn.style.cursor = 'pointer';
+  btn.style.opacity = '0.5';
+  btn.onclick = () => {
+    if (selTags.has(t)) { selTags.delete(t); btn.style.opacity='0.5'; btn.style.background=''; }
+    else { selTags.add(t); btn.style.opacity='1'; btn.style.background='var(--cs)'; btn.style.color='#fff'; }
+  };
+  tagSel.appendChild(btn);
+});
+
+// Pre-fill if editing
+if (art) {
+  document.getElementById('art-title').value = art.title;
+  document.getElementById('art-body').value = art.content.join('\n\n');
+  document.getElementById('art-author').value = art.author;
+  document.getElementById('art-date').value = art.date;
+  document.getElementById('art-summary').value = art.summary;
+  catSel.value = art.category;
+}
+
+// Auto-save hint
+let saveTimer;
+['art-title','art-body','art-summary'].forEach(id => {
+  document.getElementById(id).oninput = () => {
+    clearTimeout(saveTimer);
+    document.getElementById('auto-save-hint').textContent = '保存中…';
+    saveTimer = setTimeout(() => {
+      document.getElementById('auto-save-hint').textContent = '✓ 已自动保存 ' + new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+    }, 800);
+  };
+});
+
+// Toolbar format buttons
+function fmt(type) {
+  const map = { bold:'**粗体**', italic:'*斜体*', h1:'## 标题',
+    h2:'### 小标题', ul:'- 列表项', ol:'1. 列表项',
+    quote:'> 引用内容', link:'[链接文字](URL)', img:'![图片描述](图片URL)' };
+  const body = document.getElementById('art-body');
+  const ins = map[type] || '';
+  const pos = body.selectionStart;
+  body.value = body.value.slice(0,pos) + ins + body.value.slice(pos);
+  body.focus();
+  Utils.toast('已插入 ' + type);
+}
+window.fmt = fmt;
+
+// Buttons
+document.getElementById('btn-preview').onclick = () => {
+  window.open('../patient/article-detail.html?id=' + (id||1), '_blank');
+};
+document.getElementById('btn-draft').onclick = () => {
+  document.getElementById('auto-save-hint').textContent = '✓ 草稿已保存';
+  Utils.toast('草稿已保存');
+};
+document.getElementById('btn-publish').onclick = () => {
+  const title = document.getElementById('art-title').value.trim();
+  if (!title) { Utils.toast('请输入文章标题'); return; }
+  Utils.toast('文章已发布 ✓');
+  setTimeout(() => location.href = './articles.html', 1000);
+};
+</script>
+</body>
+</html>
