@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>心理门诊预约 · 盛京联盟精神心理服务系统</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+<style>
+.green-banner{background:linear-gradient(135deg,#0d4a60,#1a7fa0 70%,#2fa896);
+  border-radius:28px;padding:28px;color:#fff;margin-bottom:20px}
+.green-banner h2{font-family:var(--ff-disp);font-size:22px;font-weight:700;margin-bottom:8px}
+.green-banner p{font-size:14px;opacity:.82;line-height:1.65}
+.green-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;
+  border-radius:var(--rfull);background:rgba(255,255,255,.15);
+  font-size:12px;font-weight:700;color:#fff;margin-bottom:12px}
+.acc-item{border-bottom:1px solid var(--bdr)}
+.acc-trigger{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;cursor:pointer;font-size:15px;font-weight:600}
+.acc-trigger .ch{transition:transform var(--tb);font-size:14px}
+.acc-item.open .ch{transform:rotate(180deg)}
+.acc-body{padding-bottom:14px;font-size:14px;color:var(--tx2);line-height:1.7;display:none}
+.acc-item.open .acc-body{display:block}
+.doc-quick{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.doc-quick::-webkit-scrollbar{display:none}
+.doc-qcard{flex-shrink:0;width:180px;background:var(--surf);border:1px solid var(--bdr);
+  border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:var(--tb)}
+.doc-qcard:hover{box-shadow:var(--sh2)}
+.support-grid{display:grid;gap:10px}
+.support-item{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--surf-alt);border:1px solid var(--bdr);
+  border-radius:16px}
+.support-item.emg{background:rgba(168,50,50,.06);border-color:rgba(168,50,50,.2)}
+.support-item.emg .support-num{color:var(--emg);font-weight:800}
+</style>
+</head>
+<body class="phone-mode">
+<div class="phone-demo-bar">
+  <span class="phone-demo-label">📱 患者演示</span>
+  <nav class="phone-demo-nav">
+    <a class="phone-demo-link" href="./articles.html">📰 科普</a>
+    <a class="phone-demo-link on" href="./appointment.html">📅 预约</a>
+    <a class="phone-demo-link" href="./doctors.html">👨‍⚕️ 医生</a>
+    <a class="phone-demo-link" href="../index.html">← 首页</a>
+  </nav>
+</div>
+<div class="phone-device">
+  <div class="phone-screen">
+<div class="pt-shell">
+  <header class="pt-appbar">
+    <button class="appbar-back" onclick="history.back()">←</button>
+    <span class="appbar-title">心理门诊预约</span>
+  </header>
+
+  <div class="pt-content">
+
+    <!-- Green Channel Banner -->
+    <div class="green-banner">
+      <div class="green-tag">🟢 绿色通道</div>
+      <h2>盛京精神心理专科联盟<br/>心理门诊预约绿色通道</h2>
+      <p>联盟内优质医疗资源直连，快速获取专业心理诊疗服务。通道优先服务联盟转诊患者。</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <a class="btn btn-wh btn-sm" href="./doctors.html">选择医生预约 →</a>
+        <button class="btn btn-wh btn-sm" onclick="downloadTemplate()">下载转诊单模板</button>
+      </div>
+    </div>
+
+    <!-- 预约须知 -->
+    <div class="card card-p mb4">
+      <div class="sec-hd" style="margin-bottom:12px">
+        <div><div class="sec-eye">绿色通道</div><h3 class="sec-title" style="font-size:17px">预约挂号须知</h3></div>
+      </div>
+      <div id="booking-notes"></div>
+      <div style="margin-top:14px">
+        <button class="btn btn-s btn-sm" onclick="downloadTemplate()">📄 下载转诊单模板</button>
+      </div>
+    </div>
+
+    <!-- 快速医生入口 -->
+    <div class="sec-hd" style="margin-top:24px">
+      <div><div class="sec-eye">医生资源展示</div><h3 class="sec-title" style="font-size:17px">选择医生预约</h3></div>
+      <a class="btn btn-g btn-sm" href="./doctors.html">查看全部</a>
+    </div>
+    <div class="doc-quick" id="doc-quick"></div>
+
+    <!-- 就诊须知 -->
+    <div class="card card-p mt6">
+      <div class="sec-hd" style="margin-bottom:12px">
+        <div><div class="sec-eye">就诊指南</div><h3 class="sec-title" style="font-size:17px">就诊须知</h3></div>
+      </div>
+      <div id="visit-notes"></div>
+    </div>
+
+    <!-- 咨询与支持 -->
+    <div class="card card-p mt4">
+      <div class="sec-hd" style="margin-bottom:14px">
+        <div><div class="sec-eye">帮助中心</div><h3 class="sec-title" style="font-size:17px">咨询与支持</h3></div>
+      </div>
+      <div class="support-grid">
+        <div class="support-item">
+          <div>
+            <div class="w6 sm">平台客服热线</div>
+            <div class="xs muted mt2">工作日 09:00 - 18:00</div>
+          </div>
+          <a class="btn btn-s btn-sm support-num" href="tel:02412345678">📞 024-1234-5678</a>
+        </div>
+        <div class="support-item emg">
+          <div>
+            <div class="w6 sm">国家心理危机干预热线</div>
+            <div class="xs muted mt2">24小时全天候服务</div>
+          </div>
+          <a class="btn btn-sm support-num" href="tel:4001619995" style="background:var(--emg);color:#fff;border-radius:var(--rfull)">🆘 400-161-9995</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="emg-bar">
+    <div>
+      <div class="emg-lbl">紧急援助</div>
+      <div class="emg-desc">若出现强烈心理痛苦，请立即求助</div>
+    </div>
+    <div class="emg-actions">
+      <a class="emg-link" href="tel:4001619995">危机热线 400-161-9995</a>
+    </div>
+  </div>
+
+  <nav class="bt-nav" id="bt-nav"></nav>
+</div>
+  </div><!-- /.phone-screen -->
+</div><!-- /.phone-device -->
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+(function(){
+  const { bookingNotes, visitNotes, doctors } = DATA;
+
+  // Booking notes as accordion items
+  const bn = document.getElementById('booking-notes');
+  bn.innerHTML = bookingNotes.map((n,i) => `
+    <div class="acc-item${i===0?' open':''}">
+      <div class="acc-trigger" onclick="this.parentElement.classList.toggle('open')">
+        <span>须知 ${i+1}</span><span class="ch">▾</span>
+      </div>
+      <div class="acc-body">${n}</div>
+    </div>`).join('');
+
+  // Visit notes as list
+  const vn = document.getElementById('visit-notes');
+  vn.innerHTML = `<ul style="display:grid;gap:10px;padding-left:18px;list-style:disc;color:var(--tx2);font-size:14px;line-height:1.7">
+    ${visitNotes.map(n => `<li>${n}</li>`).join('')}
+  </ul>`;
+
+  // Quick doctor cards
+  const qd = document.getElementById('doc-quick');
+  qd.innerHTML = doctors.map(d => `
+    <div class="doc-qcard">
+      <div class="f aic gap2">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--gb);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0">${d.initial}</div>
+        <div class="minw0">
+          <div class="w6 sm trunc">${d.name}</div>
+          <div class="xs muted">${d.title}</div>
+        </div>
+      </div>
+      <div class="xs muted trunc">${d.hospital}</div>
+      <div class="tag-row">${d.specialty.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <button class="btn btn-p btn-sm wf" ${d.status!=='接诊中'?'disabled':''} onclick="location.href='./booking.html?doctorId=${d.id}'">${d.status==='接诊中'?'立即预约':'暂停接诊'}</button>
+    </div>`).join('');
+
+  function downloadTemplate() {
+    Utils.toast('转诊单模板已开始下载（演示）');
+  }
+  window.downloadTemplate = downloadTemplate;
+
+  Utils.initPatientNav('appointment');
+})();
+</script>
+</body>
+</html>
