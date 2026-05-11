@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>预约订单 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+  <main class="adm-main">
+
+    <div class="page-hd">
+      <div>
+        <div class="page-bc"><a href="./dashboard.html">运营总览</a><span>/</span><span>预约订单</span></div>
+        <h1 class="page-title">预约订单管理</h1>
+        <p class="page-sub">处理预约记录，跟踪就诊状态，记录随访信息。</p>
+      </div>
+      <div class="page-acts">
+        <button class="btn btn-o" onclick="Utils.toast('数据导出（演示）')">📤 导出数据</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="met-grid" id="order-stats" style="margin-bottom:20px"></div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar" id="tab-bar" style="margin-bottom:20px"></div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <div class="search-wrap" style="flex:1;min-width:180px">
+        <span class="s-icon">🔍</span>
+        <input class="input" id="order-kw" type="search" placeholder="搜索患者姓名或订单号…"/>
+      </div>
+      <select class="sel" id="doc-f">
+        <option value="">全部医生</option>
+      </select>
+      <input class="input" id="date-f" type="date" style="min-width:140px" title="按就诊日期筛选"/>
+    </div>
+
+    <!-- Table -->
+    <div class="card adm-sec">
+      <div class="tbl-wrap">
+        <table class="data-tbl">
+          <thead>
+            <tr>
+              <th>预约编号</th><th>患者</th><th>就诊医生</th>
+              <th>预约时间</th><th>状态</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="order-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager px4 py3">
+        <span id="pager-info"></span>
+        <div class="page-btns">
+          <button class="page-btn on">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">→</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Order Detail Drawer -->
+<div class="draw-overlay" id="draw-ov" onclick="Utils.closeDrawer('draw-ov','draw-panel')"></div>
+<div class="drawer" id="draw-panel">
+  <div class="draw-hd">
+    <span class="draw-title">预约详情</span>
+    <button class="btn btn-icon btn-o" onclick="Utils.closeDrawer('draw-ov','draw-panel')">✕</button>
+  </div>
+  <div class="draw-body" id="draw-content"></div>
+  <div class="draw-foot" id="draw-foot"></div>
+</div>
+
+<!-- Reschedule Modal -->
+<div class="modal-ov" id="reschedule-modal" onclick="if(event.target===this)Utils.closeModal('reschedule-modal')">
+  <div class="modal">
+    <div class="modal-hd"><h2>处理改期申请</h2></div>
+    <div class="modal-bd" style="display:grid;gap:14px">
+      <div class="alert alert-info"><span class="alert-icon">ℹ️</span><p class="sm">患者申请将就诊时间调整为以下时段：</p></div>
+      <div class="form-group">
+        <label class="form-label">新就诊时间</label>
+        <select class="sel" id="new-slot">
+          <option>2026-05-20 周三 10:00</option>
+          <option>2026-05-21 周四 14:00</option>
+          <option>2026-05-22 周五 09:30</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="area" rows="2" placeholder="可添加给患者的说明…"></textarea>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-d" onclick="Utils.closeModal('reschedule-modal');Utils.toast('改期已拒绝')">拒绝改期</button>
+      <button class="btn btn-p" onclick="Utils.closeModal('reschedule-modal');Utils.toast('改期已确认 ✓')">确认改期</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('orders');
+
+let orders = DATA.orders.map(o => ({...o}));
+let activeTab = '全部', kw = '', docFilter = '', dateFilter = '';
+
+const statusGroups = ['全部','待就诊','已完成','已取消','改期中'];
+
+// Populate doctor filter
+const docF = document.getElementById('doc-f');
+DATA.doctors.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.name; o.textContent = d.name;
+  docF.appendChild(o);
+});
+
+function countByStatus(s) {
+  return s === '全部' ? orders.length : orders.filter(o=>o.status===s).length;
+}
+
+function renderTabs() {
+  document.getElementById('tab-bar').innerHTML = statusGroups.map(s => `
+    <div class="tab${s===activeTab?' on':''}" onclick="setTab('${s}')">
+      ${s}<span class="tab-cnt">${countByStatus(s)}</span>
+    </div>`).join('');
+}
+
+function setTab(s) { activeTab=s; renderTabs(); renderTable(); }
+window.setTab = setTab;
+
+function renderStats() {
+  const pending = orders.filter(o=>o.status==='待就诊').length;
+  const done = orders.filter(o=>o.status==='已完成').length;
+  const cancelled = orders.filter(o=>o.status==='已取消').length;
+  const change = orders.filter(o=>o.status==='改期中').length;
+  document.getElementById('order-stats').innerHTML = [
+    {label:'总预约量', val:orders.length, ico:'📋'},
+    {label:'待就诊', val:pending, ico:'🕐'},
+    {label:'已完成', val:done, ico:'✅'},
+    {label:'改期处理中', val:change, ico:'🔄'}
+  ].map(m => `<div class="met-card${m.ico==='🔄'&&m.val>0?' warn-card':''}"><div class="met-lbl">${m.ico} ${m.label}</div><div class="met-val" style="font-size:26px">${m.val}</div></div>`).join('');
+}
+
+function renderTable() {
+  const list = orders.filter(o => {
+    const ms = activeTab === '全部' || o.status === activeTab;
+    const mk = !kw || (o.patient+o.id+o.doctor).includes(kw);
+    const md = !docFilter || o.doctor === docFilter;
+    const mdate = !dateFilter || o.time.startsWith(dateFilter);
+    return ms && mk && md && mdate;
+  });
+  document.getElementById('pager-info').textContent = `共 ${list.length} 条记录`;
+  document.getElementById('order-tbody').innerHTML = list.map(o => `
+    <tr>
+      <td class="xs" style="font-family:monospace;color:var(--tx2)">${o.id}</td>
+      <td><span class="w6 sm">${o.patient}</span><br><span class="xs muted">${o.phone}</span></td>
+      <td class="sm">${o.doctor}</td>
+      <td class="sm muted">${o.time}</td>
+      <td>${Utils.statusBadge(o.status)}</td>
+      <td>
+        <div class="tbl-actions">
+          <button onclick="viewOrder('${o.id}')">查看</button>
+          ${o.status==='改期中'?`<button onclick="Utils.openModal('reschedule-modal')">处理改期</button>`:''}
+          ${o.status==='已完成'?`<button onclick="Utils.toast('随访记录功能演示')">随访</button>`:''}
+          ${o.status==='待就诊'?`<button class="del" onclick="cancelOrder('${o.id}')">取消</button>`:''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function viewOrder(id) {
+  const o = orders.find(x=>x.id===id);
+  const timeline = { '待就诊':['预约成功','待就诊'], '已完成':['预约成功','已就诊','已完成'], '已取消':['预约成功','已取消'], '改期中':['预约成功','改期申请中'] };
+  const steps = timeline[o.status] || ['预约成功'];
+  document.getElementById('draw-content').innerHTML = `
+    <div style="display:grid;gap:16px">
+      <div class="f aic jcb">
+        <span class="xs muted">订单编号</span>
+        <span class="xs w6" style="font-family:monospace">${o.id}</span>
+      </div>
+      ${Utils.statusBadge(o.status)}
+      <div class="divider"></div>
+      <div class="f aic jcb"><span class="xs muted">就诊医生</span><span class="sm w6">${o.doctor}</span></div>
+      <div class="f aic jcb"><span class="xs muted">患者姓名</span><span class="sm w6">${o.patient}</span></div>
+      <div class="f aic jcb"><span class="xs muted">联系电话</span><span class="sm">${o.phone}</span></div>
+      <div class="f aic jcb"><span class="xs muted">就诊时间</span><span class="sm w6">${o.time}</span></div>
+      <div class="divider"></div>
+      <div class="sec-eye">就诊状态轨迹</div>
+      <div style="display:grid;gap:8px">
+        ${steps.map((s,i) => `<div class="f aic gap2"><div style="width:8px;height:8px;border-radius:50%;background:${i===steps.length-1?'var(--cp)':'var(--ok)'}"></div><span class="sm">${s}</span></div>`).join('')}
+      </div>
+      ${o.status==='已完成'?`<div class="divider"></div><div class="sec-eye">就诊记录</div><div class="notice"><p class="sm muted">完成初步评估，建议进行 6 次 CBT 治疗，下次复诊安排在两周后。</p></div>`:''}
+    </div>`;
+  document.getElementById('draw-foot').innerHTML = `
+    ${o.status==='改期中'?`<button class="btn btn-s" onclick="Utils.openModal('reschedule-modal')">处理改期申请</button>`:''}
+    ${o.status==='待就诊'?`<button class="btn btn-d" onclick="cancelOrder('${o.id}');Utils.closeDrawer('draw-ov','draw-panel')">取消预约</button>`:''}
+    <button class="btn btn-o" onclick="Utils.closeDrawer('draw-ov','draw-panel')">关闭</button>`;
+  Utils.openDrawer('draw-ov','draw-panel');
+}
+window.viewOrder = viewOrder;
+
+function cancelOrder(id) {
+  const o = orders.find(x=>x.id===id);
+  if (!confirm(`确认取消 ${o.patient} 的预约（${o.time}）？`)) return;
+  o.status = '已取消';
+  renderStats(); renderTabs(); renderTable();
+  Utils.toast('预约已取消');
+}
+window.cancelOrder = cancelOrder;
+
+document.getElementById('order-kw').oninput = function(){ kw=this.value.trim(); renderTable(); };
+document.getElementById('doc-f').onchange = function(){ docFilter=this.value; renderTable(); };
+document.getElementById('date-f').onchange = function(){ dateFilter=this.value; renderTable(); };
+
+renderStats(); renderTabs(); renderTable();
+</script>
+</body>
+</html>
