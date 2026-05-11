@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>文章管理 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+  <main class="adm-main">
+
+    <div class="page-hd">
+      <div>
+        <div class="page-bc"><a href="./dashboard.html">运营总览</a><span>/</span><span>文章管理</span></div>
+        <h1 class="page-title">科普文章管理</h1>
+        <p class="page-sub">管理全部心理健康科普文章的发布、编辑与下架。</p>
+      </div>
+      <div class="page-acts">
+        <a class="btn btn-p" href="./article-edit.html">＋ 新建文章</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="met-grid" style="margin-bottom:24px" id="art-stats"></div>
+
+    <!-- Filter + Table 卡片一体化 -->
+    <div class="card adm-sec" style="overflow:hidden">
+      <div class="filter-bar filter-bar-incard">
+        <div class="search-wrap">
+          <span class="s-icon">🔍</span>
+          <input class="input" id="kw" type="search" placeholder="搜索标题、作者…"/>
+        </div>
+        <div class="filter-selects">
+          <select class="sel" id="cat-f"><option value="">全部分类</option></select>
+          <select class="sel" id="status-f">
+            <option value="">全部状态</option>
+            <option value="已发布">已发布</option>
+            <option value="草稿">草稿</option>
+            <option value="已下架">已下架</option>
+          </select>
+        </div>
+        <span class="filter-count" id="art-count"></span>
+      </div>
+      <div class="tbl-wrap">
+        <table class="data-tbl">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="chk-all"/></th>
+              <th>标题</th><th>分类</th><th>作者</th>
+              <th>阅读量</th><th>发布日期</th><th>状态</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="art-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager px4 py3" id="pager">
+        <span id="pager-info"></span>
+        <div class="page-btns">
+          <button class="page-btn on">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">→</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-ov" id="confirm-ov">
+  <div class="modal">
+    <div class="modal-hd"><h2 id="modal-title">确认操作</h2></div>
+    <div class="modal-bd"><p id="modal-msg"></p></div>
+    <div class="modal-ft">
+      <button class="btn btn-o" onclick="Utils.closeModal('confirm-ov')">取消</button>
+      <button class="btn btn-d" id="modal-confirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('articles');
+
+let articles = DATA.articles.map(a => ({...a}));
+let kw = '', cat = '', status = '';
+
+// Populate category filter
+const catF = document.getElementById('cat-f');
+DATA.categories.slice(1).forEach(c => {
+  const o = document.createElement('option');
+  o.value = c; o.textContent = c;
+  catF.appendChild(o);
+});
+
+// Stats
+function renderStats() {
+  const total = articles.length;
+  const pub = articles.filter(a => a.status === '已发布').length;
+  const draft = articles.filter(a => a.status === '草稿').length;
+  const reads = articles.reduce((s,a) => s + a.reads, 0);
+  document.getElementById('art-stats').innerHTML = [
+    { label:'文章总数', val:total+' 篇', ico:'📰' },
+    { label:'已发布', val:pub+' 篇', ico:'✅' },
+    { label:'草稿', val:draft+' 篇', ico:'📝' },
+    { label:'总阅读量', val:Utils.formatNum(reads)+' 次', ico:'👁' }
+  ].map(m => `<div class="met-card"><div class="met-lbl">${m.ico} ${m.label}</div><div class="met-val" style="font-size:26px">${m.val}</div></div>`).join('');
+}
+
+function renderTable() {
+  const list = articles.filter(a => {
+    const mk = !kw || (a.title+a.author).includes(kw);
+    const mc = !cat || a.category === cat;
+    const ms = !status || a.status === status;
+    return mk && mc && ms;
+  });
+  document.getElementById('pager-info').textContent = `共 ${list.length} 篇`;
+  const artCount = document.getElementById('art-count');
+  if (artCount) artCount.textContent = (kw||cat||status) ? `找到 ${list.length} / ${articles.length} 篇` : `共 ${articles.length} 篇`;
+  document.getElementById('art-tbody').innerHTML = list.map(a => `
+    <tr>
+      <td><input type="checkbox"/></td>
+      <td style="max-width:220px" class="trunc"><span class="w6 cp" style="cursor:pointer" onclick="location.href='./article-edit.html?id=${a.id}'">${a.title}</span></td>
+      <td><span class="tag">${a.category}</span></td>
+      <td class="muted sm">${a.author.split(' · ')[0]}</td>
+      <td>${Utils.formatNum(a.reads)}</td>
+      <td class="muted sm">${a.date || '—'}</td>
+      <td>${Utils.statusBadge(a.status)}</td>
+      <td>
+        <div class="tbl-actions">
+          <a href="./article-edit.html?id=${a.id}">编辑</a>
+          <button onclick="toggleStatus(${a.id})">${a.status==='已发布'?'下架':'发布'}</button>
+          <button class="del" onclick="deleteArticle(${a.id})">删除</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function toggleStatus(id) {
+  const a = articles.find(x => x.id === id);
+  document.getElementById('modal-title').textContent = a.status === '已发布' ? '确认下架文章' : '确认发布文章';
+  document.getElementById('modal-msg').textContent = `将${a.status==='已发布'?'下架':'发布'}《${a.title}》，操作后将立即生效。`;
+  document.getElementById('modal-confirm').onclick = () => {
+    a.status = a.status === '已发布' ? '已下架' : '已发布';
+    Utils.closeModal('confirm-ov');
+    renderStats(); renderTable();
+    Utils.toast('操作成功');
+  };
+  Utils.openModal('confirm-ov');
+}
+
+function deleteArticle(id) {
+  const a = articles.find(x => x.id === id);
+  document.getElementById('modal-title').textContent = '确认删除文章';
+  document.getElementById('modal-msg').textContent = `确认删除《${a.title}》？此操作不可恢复。`;
+  document.getElementById('modal-confirm').onclick = () => {
+    articles = articles.filter(x => x.id !== id);
+    Utils.closeModal('confirm-ov');
+    renderStats(); renderTable();
+    Utils.toast('文章已删除');
+  };
+  Utils.openModal('confirm-ov');
+}
+
+document.getElementById('kw').oninput = function(){ kw=this.value.trim(); renderTable(); };
+document.getElementById('cat-f').onchange = function(){ cat=this.value; renderTable(); };
+document.getElementById('status-f').onchange = function(){ status=this.value; renderTable(); };
+document.getElementById('confirm-ov').onclick = function(e){ if(e.target===this) Utils.closeModal('confirm-ov'); };
+
+renderStats(); renderTable();
+</script>
+</body>
+</html>
