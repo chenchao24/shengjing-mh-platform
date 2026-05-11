@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>运营总览 · 盛京心理后台</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body>
+<div class="adm-shell">
+  <aside class="adm-sb" id="adm-sb"></aside>
+
+  <main class="adm-main">
+    <div class="page-hd">
+      <div class="adm-header-left">
+        <div class="page-bc"><span>盛京心理后台</span><span>/</span><span>运营总览</span></div>
+        <h1 class="page-title">运营数据总览</h1>
+        <p class="page-sub">盛京精神心理专科联盟 · 实时运营指标（演示数据）</p>
+      </div>
+      <div class="page-acts">
+        <button class="btn btn-o" onclick="Utils.toast('报表导出功能演示中…')">📤 导出报表</button>
+        <a class="btn btn-p" href="./article-edit.html">＋ 新增文章</a>
+      </div>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="met-grid" id="met-grid"></div>
+
+    <!-- Charts Row -->
+    <div class="two-col adm-sec">
+      <div class="card card-p">
+        <div class="sec-hd"><div><div class="sec-eye">趋势分析</div><h3 class="sec-title" style="font-size:17px">近7日预约趋势</h3></div></div>
+        <div class="bar-chart" id="trend-chart"></div>
+      </div>
+      <div class="card card-p">
+        <div class="sec-hd" style="margin-bottom:16px"><div><div class="sec-eye">内容分布</div><h3 class="sec-title" style="font-size:17px">文章分类阅读分布</h3></div></div>
+        <div id="cat-stats"></div>
+      </div>
+    </div>
+
+    <!-- Articles + Ranking -->
+    <div class="two-col adm-sec">
+      <div class="card card-p">
+        <div class="sec-hd" style="margin-bottom:16px">
+          <div><div class="sec-eye">内容运营</div><h3 class="sec-title" style="font-size:17px">文章列表（最新5篇）</h3></div>
+          <a class="btn btn-s btn-sm" href="./articles.html">查看全部</a>
+        </div>
+        <div class="tbl-wrap">
+          <table class="data-tbl">
+            <thead><tr><th>标题</th><th>分类</th><th>阅读量</th><th>状态</th></tr></thead>
+            <tbody id="art-preview"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card card-p">
+        <div class="sec-hd" style="margin-bottom:8px"><div><div class="sec-eye">热度排名</div><h3 class="sec-title" style="font-size:17px">热门文章 Top 5</h3></div></div>
+        <div id="top-articles"></div>
+      </div>
+    </div>
+
+    <!-- Doctors + Schedules -->
+    <div class="two-col adm-sec">
+      <div class="card card-p">
+        <div class="sec-hd" style="margin-bottom:16px">
+          <div><div class="sec-eye">医疗资源</div><h3 class="sec-title" style="font-size:17px">医生接诊状态</h3></div>
+          <a class="btn btn-s btn-sm" href="./doctors.html">管理医生</a>
+        </div>
+        <div class="doc-grid" id="doc-overview"></div>
+      </div>
+      <div class="card card-p">
+        <div class="sec-hd" style="margin-bottom:14px"><div><div class="sec-eye">本周排班</div><h3 class="sec-title" style="font-size:17px">出诊安排</h3></div></div>
+        <div style="display:grid;gap:8px" id="sch-list"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+Utils.initAdminSidebar('dashboard');
+
+const { metrics, trend, catStats, articles, doctors, schedules } = DATA;
+
+// Metrics
+document.getElementById('met-grid').innerHTML = metrics.map(m => `
+  <div class="met-card${m.warn?' warn-card':''}">
+    <div class="met-lbl">${m.label}</div>
+    <div class="met-val">${m.value}</div>
+    <div class="met-delta ${m.up?'up':'down'}">${m.delta}</div>
+  </div>`).join('');
+
+// Trend Chart
+const maxV = Math.max(...trend.values);
+document.getElementById('trend-chart').innerHTML = trend.values.map((v,i) => {
+  const h = Math.max(8, Math.round((v/maxV)*160));
+  return `<div class="bar-col"><div class="bar-val">${v}</div><div class="bar-fill" style="height:${h}px"></div><div class="bar-lbl">${trend.labels[i]}</div></div>`;
+}).join('');
+
+// Category Stats
+document.getElementById('cat-stats').innerHTML = catStats.map(c => `
+  <div class="prog-row">
+    <div class="prog-info"><div class="prog-name">${c.label}</div><div class="prog-cnt">${Utils.formatNum(c.reads)} 次</div></div>
+    <div class="prog-track"><div class="prog-fill" style="width:${c.pct}%"></div></div>
+    <div class="prog-pct">${c.pct}%</div>
+  </div>`).join('');
+
+// Article preview table
+document.getElementById('art-preview').innerHTML = [...articles].slice(0,5).map(a => `
+  <tr>
+    <td class="trunc" style="max-width:200px"><a href="./article-edit.html?id=${a.id}" class="cp w6">${a.title}</a></td>
+    <td><span class="tag">${a.category}</span></td>
+    <td>${Utils.formatNum(a.reads)}</td>
+    <td>${Utils.statusBadge(a.status)}</td>
+  </tr>`).join('');
+
+// Top articles ranking
+const sorted = [...articles].sort((a,b) => b.reads - a.reads);
+const medals = ['gold','silver','bronze','',''];
+document.getElementById('top-articles').innerHTML = sorted.slice(0,5).map((a,i) => `
+  <div class="rank-item">
+    <div class="rank-n ${medals[i]||''}">${i+1}</div>
+    <div>
+      <div class="rank-ttl">${a.title}</div>
+      <div class="rank-reads">${Utils.formatNum(a.reads)} 次阅读</div>
+    </div>
+  </div>`).join('');
+
+// Doctor overview
+document.getElementById('doc-overview').innerHTML = doctors.map(d => `
+  <div class="adc${d.status!=='接诊中'?' inactive':''}">
+    <div class="adc-head">
+      <div class="adc-av">${d.initial}</div>
+      <div><div class="adc-name">${d.name}</div><div class="adc-title">${d.title}</div></div>
+      ${Utils.statusBadge(d.status)}
+    </div>
+    <div class="xs muted">${d.hospital}</div>
+    <div class="f aic jcb gap2">
+      <span class="xs muted">接诊 ${Utils.formatNum(d.visits)} 人次</span>
+      <a class="btn btn-s btn-sm" href="./schedule.html?doctorId=${d.id}">排班</a>
+    </div>
+  </div>`).join('');
+
+// Schedule list
+document.getElementById('sch-list').innerHTML = schedules.map(s => `
+  <div class="sch-item">
+    <div class="sch-day">${s.short}</div>
+    <div class="g1"><div class="w6 sm">${s.doctor}</div><div class="xs muted mt2">${s.detail}</div></div>
+    <span class="badge ${s.avail?'badge-ok':'badge-neu'}">${s.avail?'正常出诊':'已暂停'}</span>
+  </div>`).join('');
+</script>
+</body>
+</html>
