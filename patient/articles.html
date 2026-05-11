@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>心理健康科普 · 盛京联盟精神心理服务系统</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+</head>
+<body class="phone-mode">
+<div class="phone-demo-bar">
+  <span class="phone-demo-label">📱 患者演示</span>
+  <nav class="phone-demo-nav">
+    <a class="phone-demo-link on" href="./articles.html">📰 科普</a>
+    <a class="phone-demo-link" href="./appointment.html">📅 预约</a>
+    <a class="phone-demo-link" href="./doctors.html">👨‍⚕️ 医生</a>
+    <a class="phone-demo-link" href="../index.html">← 首页</a>
+  </nav>
+</div>
+<div class="phone-device">
+  <div class="phone-screen">
+<div class="pt-shell">
+
+  <header class="pt-appbar">
+    <div class="appbar-logo">
+      <div class="ico">🧠</div>盛京联盟精神心理
+    </div>
+    <div class="appbar-actions">
+      <a class="btn btn-s btn-sm" href="../admin/dashboard.html">管理后台</a>
+    </div>
+  </header>
+
+  <!-- 服务声明 -->
+  <div style="padding:12px 16px">
+    <div class="stmt-banner">
+      <p>⚕️ 本平台内容由联盟医院专业团队审核，仅供心理健康科普参考，不构成临床诊断或治疗建议。若有诊疗需求，请通过预约通道连接专业医生。</p>
+    </div>
+  </div>
+
+  <div class="pt-content" style="padding-top:0">
+
+    <div class="sec-hd">
+      <div>
+        <div class="sec-eye">患者端 · 科普服务</div>
+        <h2 class="sec-title">心理健康科普内容</h2>
+        <p class="sec-sub">浏览由联盟专家审核的心理健康知识，了解常见心理问题及应对方法。</p>
+      </div>
+      <a class="btn btn-p btn-sm" href="./appointment.html">预约就诊</a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="filter-bar" style="margin-bottom:24px">
+      <div class="search-wrap" style="flex:1;min-width:200px">
+        <span class="s-icon">🔍</span>
+        <input class="input" id="search" type="search" placeholder="搜索标题、主题或关键词…"/>
+      </div>
+    </div>
+
+    <div class="chip-row" id="chips" style="margin-bottom:20px"></div>
+
+    <div id="article-list" class="grid-auto"></div>
+
+    <div class="empty hidden" id="empty-state">
+      <div class="empty-ico">🔍</div>
+      <div class="empty-ttl">未找到相关文章</div>
+      <p class="empty-desc">换个关键词或切换分类试试</p>
+    </div>
+
+  </div>
+
+  <!-- Emergency Bar -->
+  <div class="emg-bar">
+    <div>
+      <div class="emg-lbl">紧急援助信息</div>
+      <div class="emg-desc">若出现强烈痛苦或自伤想法，请立即拨打危机热线</div>
+    </div>
+    <div class="emg-actions">
+      <a class="emg-link" href="tel:4001619995">危机热线 400-161-9995</a>
+      <a class="emg-link" href="tel:02412345678">客服 024-1234-5678</a>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bt-nav" id="bt-nav"></nav>
+</div>
+  </div><!-- /.phone-screen -->
+</div><!-- /.phone-device -->
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+(function(){
+  const { articles, categories } = DATA;
+  let cat = '全部', kw = '';
+
+  // chips
+  const chipRow = document.getElementById('chips');
+  categories.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (c === cat ? ' on' : '');
+    btn.textContent = c;
+    btn.onclick = () => { cat = c; render(); chipRow.querySelectorAll('.chip').forEach(b => b.classList.toggle('on', b.textContent === cat)); };
+    chipRow.appendChild(btn);
+  });
+
+  // search
+  document.getElementById('search').oninput = function(){ kw = this.value.trim(); render(); };
+
+  function render() {
+    const list = articles.filter(a => {
+      const mc = cat === '全部' || a.category === cat;
+      const mk = !kw || (a.title+a.summary+a.category).includes(kw);
+      return mc && mk;
+    });
+    const root = document.getElementById('article-list');
+    const empty = document.getElementById('empty-state');
+    if (!list.length) { root.innerHTML=''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    root.innerHTML = list.map(a => `
+      <div class="art-card" onclick="location.href='./article-detail.html?id=${a.id}'">
+        <div class="art-img">${a.cover}</div>
+        <div class="art-body">
+          <div class="art-meta">
+            <span class="tag">${a.category}</span>
+            <span class="xs muted">${Utils.formatNum(a.reads)} 次阅读</span>
+          </div>
+          <h3>${a.title}</h3>
+          <p>${a.summary}</p>
+          <div class="art-meta">
+            <span class="xs muted">${a.author}</span>
+            <span class="xs cp fw-semi">查看详情 →</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  Utils.initPatientNav('articles');
+  render();
+})();
+</script>
+</body>
+</html>
