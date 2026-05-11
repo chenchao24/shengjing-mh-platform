@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>盛京心理联盟后台管理端</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="admin">
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <div>
+          <p class="eyebrow">管理平台</p>
+          <h1>盛京心理后台</h1>
+        </div>
+        <nav class="admin-nav">
+          <a href="#dashboard">运营概览</a>
+          <a href="#articles">科普管理</a>
+          <a href="#doctors">医生资源库</a>
+          <a href="#schedule">排班号源</a>
+          <a href="#orders">预约订单</a>
+        </nav>
+        <a class="ghost-link inverse" href="index.html">返回患者端</a>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-header" id="dashboard">
+          <div>
+            <p class="section-tag">后台管理端</p>
+            <h2>心理专科联盟运营数据总览</h2>
+          </div>
+          <div class="header-actions">
+            <button class="secondary-button">导出报表</button>
+            <button class="primary-button">新增文章</button>
+          </div>
+        </header>
+
+        <section class="metric-grid" id="metricCards"></section>
+
+        <section class="admin-grid charts-grid">
+          <article class="section-card wide-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">趋势</p>
+                <h3>月度预约趋势</h3>
+              </div>
+            </div>
+            <div class="chart-bars" id="trendChart"></div>
+          </article>
+          <article class="section-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">分布</p>
+                <h3>文章分类阅读分布</h3>
+              </div>
+            </div>
+            <div class="donut-list" id="categoryStats"></div>
+          </article>
+        </section>
+
+        <section class="admin-grid" id="articles">
+          <article class="section-card wide-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">科普内容管理</p>
+                <h3>文章列表与分类运营</h3>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>标题</th>
+                    <th>分类</th>
+                    <th>作者</th>
+                    <th>阅读量</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="articleTable"></tbody>
+              </table>
+            </div>
+          </article>
+          <article class="section-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">热门文章</p>
+                <h3>Top 5 排名</h3>
+              </div>
+            </div>
+            <div class="ranking-list" id="topArticles"></div>
+          </article>
+        </section>
+
+        <section class="admin-grid" id="doctors">
+          <article class="section-card wide-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">医生资源库</p>
+                <h3>医生资料与接诊状态</h3>
+              </div>
+            </div>
+            <div class="doctor-admin-grid" id="doctorAdminCards"></div>
+          </article>
+          <article class="section-card" id="schedule">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">排班号源</p>
+                <h3>本周出诊安排</h3>
+              </div>
+            </div>
+            <div class="schedule-list" id="scheduleList"></div>
+          </article>
+        </section>
+
+        <section class="admin-grid" id="orders">
+          <article class="section-card wide-card">
+            <div class="section-heading">
+              <div>
+                <p class="section-tag">预约订单管理</p>
+                <h3>待处理与已完成记录</h3>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>预约编号</th>
+                    <th>患者</th>
+                    <th>医生</th>
+                    <th>时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="orderTable"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+  </html>
