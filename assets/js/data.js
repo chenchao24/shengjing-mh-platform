@@ -13,6 +13,7 @@ window.DATA = (function () {
       author:'张晓医生 · 盛京医院心理科', authorInitial:'张',
       date:'2026-04-15', reads:3421,
       summary:'帮助用户区分短暂情绪低落与持续性抑郁状态，理解何时需要求助专业帮助。',
+      coverImg:'https://picsum.photos/seed/mh-depr/600/280',
       cover:'情绪低落的成年女性在窗边沉思，柔和自然光',
       content:[
         '抑郁症并不是简单的「心情不好」，而是一组持续两周以上、深刻影响日常生活功能的症状群。典型症状包括持续低落或空洞感、对曾经感兴趣的事物失去乐趣、疲劳乏力、注意力下降等。',
@@ -26,6 +27,7 @@ window.DATA = (function () {
       author:'李芳主任 · 沈阳市精神卫生中心', authorInitial:'李',
       date:'2026-05-02', reads:2180,
       summary:'识别青少年高压、孤立与冲突背后的心理需求，帮助家长提升支持能力。',
+      coverImg:'https://picsum.photos/seed/mh-family/600/280',
       cover:'家长与青少年在客厅沙发两端进行对话',
       content:[
         '青少年的突然情绪爆发、长时间把自己关在房间、成绩突然下滑，往往不只是「叛逆期」的正常表现，可能是内心求助信号的外化。',
@@ -39,6 +41,7 @@ window.DATA = (function () {
       author:'王鹏主任 · 中国医大附属一院', authorInitial:'王',
       date:'2026-03-26', reads:5067,
       summary:'帮助用户理解急性失眠、慢性睡眠障碍和焦虑性睡眠问题的实质区别。',
+      coverImg:'https://picsum.photos/seed/mh-sleep/600/280',
       cover:'夜间卧室中辗转反侧的睡眠场景，蓝色月光',
       content:[
         '一过性失眠通常与压力事件、时差或环境改变有关，会在诱因消失后自然恢复。但若每周至少三晚难以入睡或早醒，持续超过三个月，则应考虑慢性失眠障碍。',
@@ -52,6 +55,7 @@ window.DATA = (function () {
       author:'刘梅副主任 · 辽宁省人民医院', authorInitial:'刘',
       date:'2026-04-28', reads:1893,
       summary:'围绕高压工作场景，提供可操作的压力识别与即时调节建议。',
+      coverImg:'https://picsum.photos/seed/mh-office/600/280',
       cover:'办公室环境中进行呼吸放松练习的白领',
       content:[
         '职场焦虑常表现为心慌、反复担心出错、入睡前思维打转、对工作邮件产生回避。第一步是识别焦虑的具体触发情境，而非笼统地认为「我就是焦虑的人」。',
@@ -65,6 +69,7 @@ window.DATA = (function () {
       author:'张晓医生 · 盛京医院心理科', authorInitial:'张',
       date:'2026-05-06', reads:1247,
       summary:'从积极心理学视角介绍压力重构与心理韧性的科学依据和实践方法。',
+      coverImg:'https://picsum.photos/seed/mh-hike/600/280',
       cover:'山顶俯瞰远方的徒步者，象征心理韧性',
       content:[
         '压力本身并不有害；研究表明，相信「压力有益」的人在应激后的生理恢复速度和工作表现均优于持消极压力观的对照组。',
@@ -81,21 +86,25 @@ window.DATA = (function () {
     { id:1, name:'张晓', title:'主治医师', initial:'张',
       hospital:'盛京医院心理科', dept:'心理科',
       specialty:['抑郁症','焦虑症'], visits:856, status:'接诊中',
+      photo:'https://randomuser.me/api/portraits/women/44.jpg',
       bio:'擅长抑郁、焦虑相关障碍的评估与综合治疗，熟练运用 CBT 方法。',
       slots:['5月14日 周四 10:00','5月14日 周四 14:30','5月16日 周六 09:30'] },
     { id:2, name:'李芳', title:'副主任医师', initial:'李',
       hospital:'沈阳市精神卫生中心', dept:'儿童心理科',
       specialty:['儿童心理','亲子关系'], visits:1432, status:'接诊中',
+      photo:'https://randomuser.me/api/portraits/women/68.jpg',
       bio:'长期从事儿童青少年心理障碍评估与家庭治疗，擅长亲子沟通修复。',
       slots:['5月13日 周三 15:00','5月15日 周五 09:00','5月17日 周日 10:30'] },
     { id:3, name:'王鹏', title:'主任医师', initial:'王',
       hospital:'中国医大附属一院', dept:'精神科',
       specialty:['睡眠障碍','双相情感'], visits:2108, status:'暂停接诊',
+      photo:'https://randomuser.me/api/portraits/men/32.jpg',
       bio:'专注复杂睡眠障碍与情感障碍诊疗管理，主持多项睡眠研究课题。',
       slots:['5月18日 周一 09:00','5月18日 周一 13:30'] },
     { id:4, name:'刘梅', title:'副主任医师', initial:'刘',
       hospital:'辽宁省人民医院', dept:'心理科',
       specialty:['情绪管理','职场压力'], visits:967, status:'接诊中',
+      photo:'https://randomuser.me/api/portraits/women/55.jpg',
       bio:'擅长成年人压力管理、职场心理问题及情绪调节支持治疗。',
       slots:['5月14日 周四 16:00','5月16日 周六 10:00','5月17日 周日 14:00'] }
   ];
