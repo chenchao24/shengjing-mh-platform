@@ -1,0 +1,110 @@
+/* ================================================================
+   BASE.CSS — Design Tokens · Reset · Typography · Utilities
+   ================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Brand — 更亮、更清透的青蓝色系 */
+  --cp:       #1da8ce;
+  --cp-dark:  #1586a8;
+  --cp-sub:   rgba(29,168,206,.08);
+  --cs:       #36d8be;
+  --cs-sub:   rgba(54,216,190,.08);
+  /* Semantic */
+  --ok:       #1cb87e;  --ok-bg:  rgba(28,184,126,.08);
+  --warn:     #e08414;  --warn-bg:rgba(224,132,20,.08);
+  --err:      #cd4c4c;  --err-bg: rgba(205,76,76,.08);
+  --emg:      #c03535;
+  /* Neutrals — 轻盈白底，微微冷调 */
+  --bg:       #f3fafb;
+  --surf:     #ffffff;
+  --surf-alt: #eaf5f7;
+  --bdr:      rgba(20,100,120,.07);
+  --bdr-s:    rgba(20,100,120,.14);
+  --tx:       #1a3c46;
+  --tx2:      #6a8c94;
+  --tx3:      #9ec8d0;
+  /* Admin sidebar */
+  --sb:       #162d40;
+  --sb-h:     rgba(255,255,255,.07);
+  --sb-a:     rgba(54,216,190,.18);
+  /* Fonts */
+  --ff-body:  'Outfit','PingFang SC','Microsoft YaHei',sans-serif;
+  --ff-disp:  'Noto Serif SC','SimSun',serif;
+  /* Space (4px base) */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px;
+  --s6:24px; --s7:28px; --s8:32px; --s10:40px; --s12:48px; --s16:64px;
+  /* Radius */
+  --rsm:8px; --rmd:14px; --rlg:20px; --rxl:28px; --rfull:9999px;
+  /* Shadows — 更轻柔，带蓝色调 */
+  --sh1: 0 1px 4px rgba(0,80,110,.04),0 2px 10px rgba(0,80,110,.03);
+  --sh2: 0 4px 18px rgba(0,80,110,.07),0 1px 4px rgba(0,80,110,.04);
+  --sh3: 0 16px 48px rgba(0,80,110,.10),0 4px 16px rgba(0,80,110,.05);
+  --shp: 0 6px 20px rgba(29,168,206,.22);
+  --she: 0 8px 28px rgba(160,50,50,.24);
+  /* Gradients — 更明亮、更清透 */
+  --gb:  linear-gradient(135deg,#1da8ce,#36d8be);
+  --gbD: linear-gradient(148deg,#163c52,#1da8ce 76%);
+  --ge:  linear-gradient(135deg,#922424,#c44428);
+  /* Transitions */
+  --tf: 100ms ease; --tb: 180ms ease; --ts: 300ms ease;
+  /* Z-Index */
+  --zs:100; --zo:200; --zd:300; --zm:400; --zt:500;
+}
+
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth}
+body{margin:0;font-family:var(--ff-body);color:var(--tx);background:var(--bg);line-height:1.6}
+h1,h2,h3,h4,p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:none;background:none;padding:0}
+input,textarea{outline:none}
+table{border-collapse:collapse;width:100%}
+input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none}
+
+/* ── Type Scale ── */
+.disp{font-family:var(--ff-disp)}
+.xs{font-size:11px} .sm{font-size:13px} .base{font-size:15px}
+.lg{font-size:18px} .xl{font-size:22px} .xxl{font-size:28px} .xxxl{font-size:36px}
+.w4{font-weight:400} .w5{font-weight:500} .w6{font-weight:600} .w7{font-weight:700}
+.cp{color:var(--cp)} .muted{color:var(--tx2)} .dim{color:var(--tx3)}
+.danger{color:var(--err)} .success{color:var(--ok)}
+.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.caps{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2)}
+.lh-lg{line-height:1.75}
+
+/* ── Layout Utils ── */
+.f{display:flex} .fcol{flex-direction:column}
+.aic{align-items:center} .ais{align-items:flex-start}
+.jcb{justify-content:space-between} .jcc{justify-content:center} .jce{justify-content:flex-end}
+.wrap{flex-wrap:wrap} .g1{flex:1} .sh0{flex-shrink:0} .minw0{min-width:0}
+.gap1{gap:var(--s1)} .gap2{gap:var(--s2)} .gap3{gap:var(--s3)} .gap4{gap:var(--s4)}
+.gap5{gap:var(--s5)} .gap6{gap:var(--s6)} .gap8{gap:var(--s8)}
+.wf{width:100%} .hf{height:100%}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s4)}
+
+/* ── Spacing ── */
+.p3{padding:var(--s3)} .p4{padding:var(--s4)} .p5{padding:var(--s5)} .p6{padding:var(--s6)}
+.px4{padding-inline:var(--s4)} .py3{padding-block:var(--s3)}
+.mt2{margin-top:var(--s2)} .mt3{margin-top:var(--s3)} .mt4{margin-top:var(--s4)}
+.mt6{margin-top:var(--s6)} .mb4{margin-bottom:var(--s4)} .mb6{margin-bottom:var(--s6)}
+.mxa{margin-inline:auto}
+
+/* ── Visual ── */
+.bdr{border:1px solid var(--bdr)}
+.sh1{box-shadow:var(--sh1)} .sh2{box-shadow:var(--sh2)} .sh3{box-shadow:var(--sh3)}
+.op5{opacity:.5} .op7{opacity:.7} .op0{opacity:0}
+.hidden{display:none!important}
+.divider{height:1px;background:var(--bdr)}
+.divider-v{width:1px;background:var(--bdr);align-self:stretch}
+.ov-hidden{overflow:hidden} .ov-auto{overflow:auto}
+.cur{cursor:pointer} .nosel{user-select:none}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr-s);border-radius:3px}
