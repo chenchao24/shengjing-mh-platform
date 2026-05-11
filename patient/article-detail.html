@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>科普详情 · 盛京联盟精神心理服务系统</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+<style>
+.art-detail{max-width:680px;margin:0 auto;padding:24px 16px 180px}
+.art-cover{border-radius:24px;aspect-ratio:16/7;background:var(--gb);
+  display:flex;align-items:flex-end;padding:20px;color:#fff;font-size:13px;
+  font-weight:600;line-height:1.4;margin-bottom:24px}
+.art-body p{font-size:15px;line-height:1.85;color:var(--tx);margin-bottom:20px}
+.author-card{display:flex;align-items:center;gap:14px;padding:16px 20px;
+  background:var(--surf-alt);border:1px solid var(--bdr);border-radius:20px;margin:24px 0}
+.author-av{width:48px;height:48px;border-radius:14px;background:var(--gb);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;flex-shrink:0}
+.crisis-box{background:linear-gradient(135deg,rgba(140,30,30,.08),rgba(210,80,40,.06));
+  border:1px solid rgba(168,50,50,.2);border-radius:20px;padding:20px 22px;margin-top:24px}
+.crisis-box h3{color:var(--emg);font-size:15px;font-weight:700;margin-bottom:10px}
+.crisis-box p{font-size:14px;color:#5c1a1a;line-height:1.65}
+.crisis-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.crisis-actions a{padding:10px 16px;border-radius:var(--rfull);background:rgba(168,50,50,.12);
+  border:1px solid rgba(168,50,50,.2);color:var(--emg);font-size:13px;font-weight:700}
+</style>
+</head>
+<body class="phone-mode">
+<div class="phone-demo-bar">
+  <span class="phone-demo-label">📱 患者演示</span>
+  <nav class="phone-demo-nav">
+    <a class="phone-demo-link on" href="./articles.html">📰 科普</a>
+    <a class="phone-demo-link" href="./appointment.html">📅 预约</a>
+    <a class="phone-demo-link" href="./doctors.html">👨‍⚕️ 医生</a>
+    <a class="phone-demo-link" href="../index.html">← 首页</a>
+  </nav>
+</div>
+<div class="phone-device">
+  <div class="phone-screen">
+<div class="pt-shell">
+  <header class="pt-appbar">
+    <button class="appbar-back" onclick="history.back()">←</button>
+    <span class="appbar-title" id="page-title">心理科普</span>
+    <div class="appbar-actions">
+      <button class="btn btn-icon btn-o" id="share-btn" title="分享">⬆</button>
+    </div>
+  </header>
+
+  <div class="art-detail" id="content">
+    <div class="empty"><div class="empty-ico">📄</div><div class="empty-ttl">文章加载中…</div></div>
+  </div>
+
+  <div class="emg-bar">
+    <div>
+      <div class="emg-lbl">紧急援助信息</div>
+      <div class="emg-desc">阅读时如触发不适，请立即联系专业帮助</div>
+    </div>
+    <div class="emg-actions">
+      <a class="emg-link" href="tel:4001619995">危机热线 400-161-9995</a>
+      <a class="emg-link" href="./appointment.html">预约医生</a>
+    </div>
+  </div>
+
+  <nav class="bt-nav" id="bt-nav"></nav>
+</div>
+  </div><!-- /.phone-screen -->
+</div><!-- /.phone-device -->
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+(function(){
+  const id = parseInt(Utils.getParam('id') || '1');
+  const art = DATA.articles.find(a => a.id === id);
+
+  if (!art) {
+    document.getElementById('content').innerHTML = '<div class="empty"><div class="empty-ico">❌</div><div class="empty-ttl">文章不存在</div></div>';
+    Utils.initPatientNav('articles');
+    return;
+  }
+
+  document.title = art.title + ' · 盛京联盟精神心理服务系统';
+  document.getElementById('page-title').textContent = art.category;
+
+  document.getElementById('content').innerHTML = `
+    <div style="margin-bottom:8px">
+      <span class="tag">${art.category}</span>
+    </div>
+    <h1 class="disp" style="font-size:clamp(20px,4vw,26px);font-weight:700;line-height:1.3;margin-bottom:14px">${art.title}</h1>
+    <div class="f aic gap3 xs muted" style="margin-bottom:20px;flex-wrap:wrap">
+      <span>${art.author}</span>
+      <span style="opacity:.4">·</span>
+      <span>${art.date}</span>
+      <span style="opacity:.4">·</span>
+      <span>📖 ${Utils.formatNum(art.reads)} 次阅读</span>
+    </div>
+    <div class="art-cover">${art.cover}</div>
+    ${art.content.map(p => `<p>${p}</p>`).join('')}
+    <div class="author-card">
+      <div class="author-av">${art.authorInitial}</div>
+      <div>
+        <div class="w6">${art.author.split(' · ')[0]}</div>
+        <div class="xs muted mt2">${art.author.split(' · ')[1] || ''}</div>
+      </div>
+    </div>
+    <div class="crisis-box">
+      <h3>⚠️ 紧急援助</h3>
+      <p>阅读本文时如出现明显不适、惊恐发作、或自伤/伤人的想法，请不要独自面对，立即联系家属并拨打专业援助热线。</p>
+      <div class="crisis-actions">
+        <a href="tel:4001619995">📞 危机干预热线 400-161-9995</a>
+        <a href="./appointment.html">👨‍⚕️ 预约专业医生</a>
+      </div>
+    </div>`;
+
+  document.getElementById('share-btn').onclick = () => {
+    if (navigator.share) {
+      navigator.share({ title: art.title, url: location.href });
+    } else {
+      navigator.clipboard.writeText(location.href).then(() => Utils.toast('链接已复制到剪贴板'));
+    }
+  };
+
+  Utils.initPatientNav('articles');
+})();
+</script>
+</body>
+</html>
