@@ -112,7 +112,9 @@
     empty.classList.add('hidden');
     root.innerHTML = list.map((d, i) => `
       <div class="doc-card${d.status !== '接诊中' ? ' inactive' : ''}">
-        <div class="doc-av c${(i % 5) + 1}">${d.initial}</div>
+        <div class="doc-av c${(i % 5) + 1}${d.photo ? ' has-photo' : ''}">
+          ${d.photo ? `<img src="${d.photo}" alt="${d.name}" loading="lazy" onerror="this.parentNode.classList.remove('has-photo');this.style.display='none'"/>` : d.initial}
+        </div>
         <div class="doc-info">
           <div class="f aic gap2 wrap">
             <span class="doc-name">${d.name}</span>
