@@ -109,12 +109,15 @@
   border:1px solid var(--bdr);border-radius:var(--rxl);box-shadow:var(--sh1);
   overflow:hidden;cursor:pointer;transition:transform var(--tb),box-shadow var(--tb)}
 .art-card:hover{transform:translateY(-4px);box-shadow:var(--sh2)}
-/* 图片区 — 加光晕效果 */
+/* 图片区 — 支持真实图片 */
 .art-img{aspect-ratio:16/7;display:flex;align-items:flex-end;padding:var(--s4);
   background:var(--gb);color:#fff;font-size:12px;font-weight:600;line-height:1.4;
   position:relative;overflow:hidden}
+.art-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;transition:transform .4s ease}
+.art-card:hover .art-img img{transform:scale(1.04)}
 .art-img::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.22));
+  background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.45));
   pointer-events:none}
 .art-body{padding:var(--s4) var(--s5);flex:1;display:flex;flex-direction:column;gap:var(--s2)}
 .art-body h3{font-size:15px;font-weight:700;line-height:1.5}
@@ -126,11 +129,13 @@
   border:1px solid var(--bdr);border-radius:var(--rxl);box-shadow:var(--sh1);
   padding:var(--s5);transition:box-shadow var(--tb),transform var(--tb)}
 .doc-card:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
-/* 医生头像彩色渐变 — 根据 id 轮换 */
+/* 医生头像 — 支持真实照片 */
 .doc-av{width:64px;height:64px;border-radius:var(--rlg);
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-size:22px;font-weight:700;flex-shrink:0;
-  box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  box-shadow:0 4px 12px rgba(0,0,0,.15);overflow:hidden}
+.doc-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.doc-av.has-photo{background:var(--surf-alt)}
 .doc-av:nth-child(1),.doc-av.c1{background:linear-gradient(135deg,#1da8ce,#36d8be)}
 .doc-av.c2{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
 .doc-av.c3{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
@@ -323,7 +328,9 @@
 .adc.inactive{opacity:.6}
 .adc-head{display:flex;align-items:center;gap:var(--s3)}
 .adc-av{width:44px;height:44px;border-radius:var(--rmd);background:var(--gb);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0}
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;overflow:hidden}
+.adc-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.adc-av.has-photo{background:var(--surf-alt)}
 /* 彩色头像变体 */
 .adc-av.c1,.doc-av.c1{background:linear-gradient(135deg,#1da8ce,#36d8be)}
 .adc-av.c2,.doc-av.c2{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
