@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>盛京精神心理专科联盟 · 心理健康服务平台</title>
+<link rel="stylesheet" href="./assets/css/base.css"/>
+<link rel="stylesheet" href="./assets/css/components.css"/>
+<link rel="stylesheet" href="./assets/css/layout.css"/>
+<style>
+/* 首页导航栏 */
+.nav-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;position:absolute;top:0;left:0;right:0;z-index:10}
+.nav-logo{display:flex;align-items:center;gap:10px;color:#fff;font-size:16px;
+  font-weight:700;font-family:var(--ff-disp)}
+.nav-logo .ico{width:32px;height:32px;border-radius:10px;
+  background:rgba(255,255,255,.2);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.nav-badge{padding:4px 12px;border-radius:var(--rfull);
+  background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2)}
+
+/* 路径卡片 — 分别用不同渐变色 */
+.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  max-width:840px;margin:0 auto;padding:0 16px}
+.path-card{border-radius:28px;padding:28px;cursor:pointer;
+  display:flex;flex-direction:column;gap:14px;
+  backdrop-filter:blur(12px);transition:transform var(--tb),box-shadow var(--tb);
+  position:relative;overflow:hidden}
+.path-card::before{content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,.06);pointer-events:none}
+.path-card:hover{transform:translateY(-6px);box-shadow:0 24px 64px rgba(0,0,0,.35)}
+/* 患者端：游琳瓶蓝累色 */
+.path-card.pt{background:linear-gradient(145deg,rgba(54,216,190,.25),rgba(29,168,206,.18));
+  border:1px solid rgba(54,216,190,.35)}
+/* 后台端：紫色深蓝 */
+.path-card.adm{background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(99,102,241,.16));
+  border:1px solid rgba(139,92,246,.3)}
+.path-ico{width:52px;height:52px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.path-card.pt .path-ico{background:linear-gradient(135deg,#1da8ce,#36d8be)}
+.path-card.adm .path-ico{background:linear-gradient(135deg,#8b5cf6,#6366f1)}
+.path-title{font-size:19px;font-weight:700;font-family:var(--ff-disp);color:#fff}
+.path-desc{font-size:13px;color:rgba(255,255,255,.75);line-height:1.65}
+.path-pages{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.path-page{padding:3px 9px;border-radius:var(--rfull);
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+  font-size:11px;font-weight:600;color:rgba(255,255,255,.82)}
+.path-cta{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;
+  border-radius:var(--rfull);font-size:13px;font-weight:700;
+  margin-top:auto;transition:var(--tb);text-decoration:none;width:fit-content;
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff}
+.path-cta:hover{background:rgba(255,255,255,.28)}
+
+/* 特性卡片 — 彩色图标 */
+.feat-card{background:var(--surf);border:1px solid var(--bdr);
+  border-radius:24px;padding:var(--s6);box-shadow:var(--sh1);
+  transition:transform var(--tb),box-shadow var(--tb)}
+.feat-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.feat-ico{width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:var(--s4)}
+.feat-card:nth-child(1) .feat-ico{background:linear-gradient(135deg,#e0f7ff,#b3ecff)}
+.feat-card:nth-child(2) .feat-ico{background:linear-gradient(135deg,#d4fdf0,#a7f3dd)}
+.feat-card:nth-child(3) .feat-ico{background:linear-gradient(135deg,#ffe4e4,#ffc0c0)}
+.feat-card:nth-child(4) .feat-ico{background:linear-gradient(135deg,#ebe9ff,#d1cfff)}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.feat-desc{font-size:13px;color:var(--tx2);line-height:1.65}
+
+/* 首页 land-hero 背景视差装饰 */
+.land-hero{position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#072a3d 0%,#0e3d58 30%,#0d5472 60%,#116e8a 100%)}
+.land-blob-1,.land-blob-2,.land-blob-3{position:absolute;border-radius:var(--rfull);pointer-events:none}
+.land-blob-1{width:500px;height:500px;top:-180px;right:-120px;
+  background:radial-gradient(circle,rgba(54,216,190,.28) 0%,transparent 70%)}
+.land-blob-2{width:400px;height:400px;bottom:-150px;left:-100px;
+  background:radial-gradient(circle,rgba(29,168,206,.22) 0%,transparent 70%)}
+.land-blob-3{width:260px;height:260px;top:40%;left:55%;
+  background:radial-gradient(circle,rgba(139,92,246,.18) 0%,transparent 70%)}
+
+/* footer */
+.site-footer{text-align:center;padding:24px 16px;
+  color:var(--tx2);font-size:13px;border-top:1px solid var(--bdr);
+  background:var(--surf)}
+@media(max-width:600px){
+  .path-grid{grid-template-columns:1fr}
+  .nav-bar{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+<div class="landing">
+  <div class="land-hero" style="padding-top:80px">
+    <nav class="nav-bar">
+      <div class="nav-logo"><div class="ico">🧠</div>盛京心理健康服务平台</div>
+      <span class="nav-badge">演示 v2.0</span>
+    </nav>
+    <!-- 视差光球 -->
+    <div class="land-blob-1"></div>
+    <div class="land-blob-2"></div>
+    <div class="land-blob-3"></div>
+    <div class="land-ico">🧠</div>
+    <div class="land-title">盛京精神心理专科联盟</div>
+    <p class="land-sub">科普教育 · 问题识别 · 专业干预<br/>心理健康服务一站式平台演示程序</p>
+    <div class="path-grid" style="width:100%;margin-bottom:16px">
+      <div class="path-card pt" onclick="location.href='./patient/articles.html'">
+        <div class="path-ico">📱</div>
+        <div class="path-title">患者服务端</div>
+        <p class="path-desc">面向公众，提供心理健康科普阅读、绿色通道预约与危机援助引导。</p>
+        <div class="path-pages">
+          <span class="path-page">科普文章</span>
+          <span class="path-page">文章详情</span>
+          <span class="path-page">预约通道</span>
+          <span class="path-page">医生列表</span>
+          <span class="path-page">预约流程</span>
+        </div>
+        <a class="path-cta" href="./patient/articles.html">进入患者端 →</a>
+      </div>
+      <div class="path-card adm" onclick="location.href='./admin/dashboard.html'">
+        <div class="path-ico">🖥</div>
+        <div class="path-title">后台管理端</div>
+        <p class="path-desc">面向运营人员，支持内容管理、医生资源维护、排班配置与订单处理。</p>
+        <div class="path-pages">
+          <span class="path-page">运营总览</span>
+          <span class="path-page">文章管理</span>
+          <span class="path-page">分类标签</span>
+          <span class="path-page">医生资源库</span>
+          <span class="path-page">排班号源</span>
+          <span class="path-page">预约订单</span>
+        </div>
+        <a class="path-cta" href="./admin/dashboard.html">进入管理端 →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="land-features">
+    <div class="feat-card">
+      <div class="feat-ico">📰</div>
+      <div class="feat-title">专业科普内容</div>
+      <p class="feat-desc">联盟医院专业医生审核，涵盖抑郁焦虑、亲子关系、睡眠问题、情绪管理等核心主题。</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ico">🟢</div>
+      <div class="feat-title">绿色通道预约</div>
+      <p class="feat-desc">标准化转诊流程，医生资源实时展示，三步完成心理门诊预约，高效衔接专业诊疗。</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ico">🆘</div>
+      <div class="feat-title">危机援助支持</div>
+      <p class="feat-desc">全流程嵌入危机热线 400-161-9995，确保用户在任何阶段都能第一时间获得帮助。</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-ico">📊</div>
+      <div class="feat-title">精细化运营管理</div>
+      <p class="feat-desc">完整的内容生命周期管理、排班号源调配、预约订单处理与核心运营数据统计。</p>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    盛京精神心理专科联盟 · 心理健康服务平台演示程序 · 本程序所有数据均为模拟数据，仅供演示
+  </footer>
+</div>
+</body>
+</html>
