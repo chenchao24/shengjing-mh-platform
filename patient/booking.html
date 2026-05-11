@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>预约挂号 · 盛京联盟精神心理服务系统</title>
+<link rel="stylesheet" href="../assets/css/base.css"/>
+<link rel="stylesheet" href="../assets/css/components.css"/>
+<link rel="stylesheet" href="../assets/css/layout.css"/>
+<style>
+.step-content{display:none}
+.step-content.active{display:block}
+.date-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.date-btn{padding:10px 6px;border-radius:14px;border:1.5px solid var(--bdr-s);
+  text-align:center;cursor:pointer;transition:var(--tb);background:var(--surf)}
+.date-btn:hover{border-color:var(--cp);color:var(--cp)}
+.date-btn.on{border-color:var(--cp);background:var(--cp);color:#fff}
+.date-day{font-size:11px;opacity:.75;margin-bottom:3px}
+.date-num{font-size:17px;font-weight:700}
+</style>
+</head>
+<body class="phone-mode">
+<div class="phone-demo-bar">
+  <span class="phone-demo-label">📱 患者演示</span>
+  <nav class="phone-demo-nav">
+    <a class="phone-demo-link" href="./articles.html">📰 科普</a>
+    <a class="phone-demo-link on" href="./appointment.html">📅 预约</a>
+    <a class="phone-demo-link" href="./doctors.html">👨‍⚕️ 医生</a>
+    <a class="phone-demo-link" href="../index.html">← 首页</a>
+  </nav>
+</div>
+<div class="phone-device">
+  <div class="phone-screen">
+<div class="pt-shell">
+  <header class="pt-appbar">
+    <button class="appbar-back" onclick="history.back()">←</button>
+    <span class="appbar-title">预约挂号</span>
+  </header>
+
+  <div class="bk-shell" id="main-content">
+    <div class="empty"><div class="empty-ico">📅</div><div class="empty-ttl">加载中…</div></div>
+  </div>
+
+  <div class="emg-bar">
+    <div>
+      <div class="emg-lbl">紧急援助</div>
+      <div class="emg-desc">若出现强烈痛苦或危机，请立即求助</div>
+    </div>
+    <div class="emg-actions">
+      <a class="emg-link" href="tel:4001619995">危机热线 400-161-9995</a>
+    </div>
+  </div>
+
+  <nav class="bt-nav" id="bt-nav"></nav>
+</div>
+  </div><!-- /.phone-screen -->
+</div><!-- /.phone-device -->
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/utils.js"></script>
+<script>
+(function(){
+  const doctorId = parseInt(Utils.getParam('doctorId') || '1');
+  const doctor = DATA.doctors.find(d => d.id === doctorId);
+  const root = document.getElementById('main-content');
+
+  if (!doctor) {
+    root.innerHTML = '<div class="empty"><div class="empty-ico">❌</div><div class="empty-ttl">医生信息不存在</div><p class="empty-desc"><a href="./doctors.html" class="cp">返回医生列表</a></p></div>';
+    Utils.initPatientNav('appointment');
+    return;
+  }
+
+  let step = 1, selSlot = null, formData = {};
+
+  function stepsHtml() {
+    const items = ['选择时间','填写信息','确认预约'];
+    return `<div class="steps" style="margin-bottom:24px">` +
+      items.map((lbl,i) => {
+        const n = i+1;
+        const cls = n < step ? 'done' : n === step ? 'active' : '';
+        return `<div class="step-item ${cls}"><div class="step-num">${n < step ? '✓' : n}</div><span class="step-lbl">${lbl}</span></div>${i<2?'<div class="step-line"></div>':''}`;
+      }).join('') + `</div>`;
+  }
+
+  function doctorCardHtml() {
+    return `<div class="bk-doctor">
+      <div style="width:44px;height:44px;border-radius:14px;background:var(--gb);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0">${doctor.initial}</div>
+      <div class="minw0">
+        <div class="f aic gap2 wrap"><span class="w7 sm">${doctor.name}</span><span class="badge badge-neu">${doctor.title}</span></div>
+        <div class="xs muted">${doctor.hospital}</div>
+      </div>
+    </div>`;
+  }
+
+  function renderStep1() {
+    root.innerHTML = stepsHtml() + doctorCardHtml() + `
+      <div class="card card-p">
+        <div class="sec-eye mb4">选择就诊时间</div>
+        <div class="form-label mb4">可预约时间段</div>
+        <div class="slot-grid" id="slots">
+          ${doctor.slots.map(s => `<div class="slot-btn${s===selSlot?' on':''}" data-slot="${s}">${s}</div>`).join('')}
+        </div>
+        ${doctor.slots.length === 0 ? '<div class="empty empty-ico" style="padding:32px 0">暂无可预约号源</div>' : ''}
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn btn-p btn-lg btn-w" id="next1" ${!selSlot?'disabled':''}>下一步 →</button>
+      </div>`;
+
+    document.querySelectorAll('.slot-btn').forEach(btn => {
+      btn.onclick = () => {
+        selSlot = btn.dataset.slot;
+        document.querySelectorAll('.slot-btn').forEach(b => b.classList.toggle('on', b.dataset.slot === selSlot));
+        document.getElementById('next1').disabled = false;
+      };
+    });
+    document.getElementById('next1').onclick = () => { step = 2; render(); };
+  }
+
+  function renderStep2() {
+    root.innerHTML = stepsHtml() + doctorCardHtml() + `
+      <div class="card card-p">
+        <div class="sec-eye mb4">填写就诊信息</div>
+        <div class="notice accent" style="margin-bottom:16px">
+          <p class="xs" style="color:var(--cp-dark)">🔒 隐私保护：演示版本不保存任何真实个人信息，仅展示预约流程。</p>
+        </div>
+        <form id="info-form" style="display:grid;gap:16px">
+          <div class="form-group">
+            <label class="form-label">就诊人姓名 <span class="danger">*</span></label>
+            <input class="input" name="name" required placeholder="请输入真实姓名" value="${formData.name||''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">手机号码 <span class="danger">*</span></label>
+            <input class="input" name="phone" type="tel" required placeholder="请输入联系电话" value="${formData.phone||''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">就诊原因简述</label>
+            <textarea class="area" name="reason" rows="4" placeholder="例如：持续焦虑失眠2个月，工作压力较大…">${formData.reason||''}</textarea>
+          </div>
+        </form>
+      </div>
+      <div class="f gap3 mt5">
+        <button class="btn btn-o" onclick="step=1;render()">← 上一步</button>
+        <button class="btn btn-p btn-lg g1" id="next2">下一步 →</button>
+      </div>`;
+
+    document.getElementById('next2').onclick = () => {
+      const form = document.getElementById('info-form');
+      const fd = new FormData(form);
+      if (!fd.get('name') || !fd.get('phone')) {
+        Utils.toast('请填写必填信息'); return;
+      }
+      formData = Object.fromEntries(fd);
+      step = 3; render();
+    };
+  }
+
+  function renderStep3() {
+    root.innerHTML = stepsHtml() + doctorCardHtml() + `
+      <div class="card card-p">
+        <div class="sec-eye mb4">确认预约信息</div>
+        <div style="display:grid;gap:12px">
+          <div class="f jcb aic bdr" style="padding:12px 0;border-width:0 0 1px 0">
+            <span class="xs muted">就诊医生</span><span class="w6 sm">${doctor.name} ${doctor.title}</span>
+          </div>
+          <div class="f jcb aic bdr" style="padding:12px 0;border-width:0 0 1px 0">
+            <span class="xs muted">就诊时间</span><span class="w6 sm">${selSlot}</span>
+          </div>
+          <div class="f jcb aic bdr" style="padding:12px 0;border-width:0 0 1px 0">
+            <span class="xs muted">就诊人</span><span class="w6 sm">${formData.name || '—'}</span>
+          </div>
+          <div class="f jcb aic bdr" style="padding:12px 0;border-width:0 0 1px 0">
+            <span class="xs muted">联系电话</span><span class="w6 sm">${formData.phone || '—'}</span>
+          </div>
+          ${formData.reason ? `<div class="f jcb ais" style="padding:12px 0"><span class="xs muted sh0">就诊原因</span><span class="sm" style="text-align:right;max-width:60%">${formData.reason}</span></div>` : ''}
+        </div>
+        <div class="alert alert-info mt4">
+          <span class="alert-icon">ℹ️</span>
+          <p>请携带身份证、医保卡、既往病历及有效转诊单，按时前往就诊。</p>
+        </div>
+      </div>
+      <div class="f gap3 mt5">
+        <button class="btn btn-o" onclick="step=2;render()">← 修改信息</button>
+        <button class="btn btn-p btn-lg g1" id="submit-btn">✓ 确认提交预约</button>
+      </div>`;
+
+    document.getElementById('submit-btn').onclick = () => { renderSuccess(); };
+  }
+
+  function renderSuccess() {
+    const orderId = 'YY' + Date.now().toString().slice(-8);
+    root.innerHTML = `
+      <div class="bk-success">
+        <div class="success-ico">✅</div>
+        <h2 class="disp" style="font-size:22px;font-weight:700">预约提交成功</h2>
+        <p class="muted sm">预约编号：<strong class="cp">${orderId}</strong></p>
+        <div class="card card-p" style="text-align:left">
+          <div class="f jcb aic" style="margin-bottom:12px">
+            <span class="xs muted">医生</span><span class="w6">${doctor.name} ${doctor.title}</span>
+          </div>
+          <div class="f jcb aic" style="margin-bottom:12px">
+            <span class="xs muted">时间</span><span class="w6">${selSlot}</span>
+          </div>
+          <div class="f jcb aic">
+            <span class="xs muted">就诊人</span><span class="w6">${formData.name || '—'}</span>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">📋</span>
+          <p>请携带：身份证 · 医保卡 · 既往病历 · 有效转诊单（三个月内）</p>
+        </div>
+        <div class="f gap3 wf" style="flex-direction:column">
+          <a class="btn btn-p btn-lg" href="./appointment.html">返回预约首页</a>
+          <a class="btn btn-o" href="./articles.html">浏览科普文章</a>
+        </div>
+      </div>`;
+  }
+
+  function render() {
+    if (step === 1) renderStep1();
+    else if (step === 2) renderStep2();
+    else if (step === 3) renderStep3();
+  }
+
+  Utils.initPatientNav('appointment');
+  render();
+})();
+</script>
+</body>
+</html>
